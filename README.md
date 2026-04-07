@@ -4,8 +4,6 @@
 
 Built with the conviction that a personal site should reflect how its author actually organizes knowledge: relational, non-hierarchical, and driven by plain text. Every node is a Markdown file. Every edge is a `[[wikilink]]`. The graph builds itself.
 
-![graph-folio preview](./public/preview.png)
-
 ---
 
 ## Philosophy
