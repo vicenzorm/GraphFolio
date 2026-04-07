@@ -1,0 +1,210 @@
+---
+import '../styles/tokens.css';
+import '../styles/components.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vicenzo — Graph Portfolio</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "d3": "https://esm.sh/d3@7",
+        "fuse.js": "https://esm.sh/fuse.js@7",
+        "marked": "https://esm.sh/marked@17"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="graph-container"></div>
+  </body>
+</html>
+
+<script type="module">
+import * as d3 from 'd3';
+import Fuse from 'fuse.js';
+import { parse as markedParse } from 'marked';
+
+const NODE_COLORS = { project: '#7c6af7', skill: '#4fc3f7', language: '#4fc3f7', concept: '#6abf69' };
+const NODE_RADII = { project: 18, skill: 10, language: 10, concept: 7 };
+let flyToFn = null, allNodes = [], bufferVisible = false, searchVisible = false, fuseIdx = null, sResults = [], sIdx = 0;
+
+function marked(body) { return markedParse(body, { async: false }); }
+
+function closeBuffer() {
+  if (!bufferVisible) return; bufferVisible = false;
+  const bd = document.querySelector('.node-buffer-backdrop');
+  if (bd) { const p = bd.querySelector('div'); if(p) p.classList.remove('visible'); setTimeout(() => bd.remove(), 130); }
+}
+
+function openBuffer(node) {
+  closeBuffer();
+  const bd = document.createElement('div'); bd.className = 'node-buffer-backdrop';
+  const pnl = document.createElement('div');
+  const rendered = marked(node.body);
+  pnl.innerHTML = '<div class="buffer-header"><div class="buffer-dots"><span class="buffer-dot red"></span><span class="buffer-dot yellow"></span><span class="buffer-dot green"></span></div><span class="buffer-title">' + node.title + '</span><button class="buffer-close">:q</button></div><div class="buffer-body">' + rendered.replace(/\[\[([^\]]+)\]\]/g, '<span class="wikilink">$1</span>') + '</div>';
+  bd.appendChild(pnl);
+  const close = () => closeBuffer();
+  pnl.querySelector('.buffer-close').addEventListener('click', close);
+  bd.addEventListener('click', e => { if (e.target === bd) close(); });
+  document.body.appendChild(bd);
+  bufferVisible = true;
+  requestAnimationFrame(() => pnl.classList.add('visible'));
+}
+
+function closeSearch() {
+  searchVisible = false; sResults = [];
+  const el = document.querySelector('.omni-backdrop');
+  if (el) { el.querySelector('div')?.classList.remove('visible'); setTimeout(() => el.remove(), 130); }
+}
+
+function renderResults(bd) {
+  const rl = bd.querySelector('.omni-results');
+  if (!rl) return;
+  if (sResults.length === 0) { rl.innerHTML = '<div class="omni-empty">No matches found.</div>'; return; }
+  rl.innerHTML = sResults.map((n, i) => {
+    const c = NODE_COLORS[n.type] || '#888';
+    return '<div class="omni-result' + (i === sIdx ? ' active' : '') + '" data-i="' + i + '"><span class="omni-badge" style="background:' + c + '22;color:' + c + ';border:1px solid ' + c + '55">' + n.type.toUpperCase() + '</span><span class="omni-result-title">' + n.title + '</span>' + (n.description ? '<span class="omni-result-desc"> — ' + n.description + '</span>' : '') + '</div>';
+  }).join('');
+  rl.querySelectorAll('.omni-result').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.i);
+      closeSearch();
+      if (flyToFn) flyToFn(sResults[idx].id);
+    });
+  });
+}
+
+function openOmniSearch(nodes) {
+  if (searchVisible) return;
+  searchVisible = true;
+  sIdx = 0;
+  fuseIdx = new Fuse(nodes, { keys: [{ name: 'title', weight: 0.7 }, { name: 'tags', weight: 0.5 }, { name: 'description', weight: 0.4 }, { name: 'body', weight: 0.2 }], threshold: 0.35 });
+  sResults = nodes.slice(0, 15);
+  const bd = document.createElement('div');
+  bd.className = 'omni-backdrop';
+  bd.innerHTML = '<div><input class="omni-input" type="text" placeholder="Search nodes..." autocomplete="off" /><div class="omni-results"></div><div class="omni-footer"><span>Enter: open</span><span>Up/Down: navigate</span><span>Esc: close</span></div></div>';
+  bd.querySelector('.omni-input').addEventListener('input', function () {
+    const q = this.value.trim();
+    if (!q || !fuseIdx) { sResults = nodes.slice(0, 15); }
+    else { sResults = fuseIdx.search(q).slice(0, 15).map(r => r.item); }
+    sIdx = 0;
+    renderResults(bd);
+  });
+  bd.addEventListener('click', e => { if (e.target === bd) closeSearch(); });
+  document.addEventListener('keydown', function sk(e) {
+    if (!searchVisible) return;
+    if (e.key === 'Escape') { e.preventDefault(); closeSearch(); }
+    else if (e.key === 'ArrowDown' || (e.ctrlKey && e.key.toLowerCase() === 'n' && !e.metaKey)) { e.preventDefault(); sIdx = (sIdx + 1) % Math.max(1, sResults.length); renderResults(bd); }
+    else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key.toLowerCase() === 'p' && !e.metaKey)) { e.preventDefault(); sIdx = (sIdx - 1 + Math.max(1, sResults.length)) % Math.max(1, sResults.length); renderResults(bd); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (sResults[sIdx] && flyToFn) { closeSearch(); flyToFn(sResults[sIdx].id); } }
+  });
+  document.body.appendChild(bd);
+  requestAnimationFrame(() => bd.querySelector('div').classList.add('visible'));
+  renderResults(bd);
+}
+
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (allNodes.length > 0) openOmniSearch(allNodes);
+    return;
+  }
+  if (e.key === 'Escape' && (bufferVisible || searchVisible)) {
+    e.preventDefault();
+    closeBuffer();
+    closeSearch();
+  }
+});
+
+function mountGraph(container, data) {
+  if (data.nodes.length === 0) {
+    container.innerHTML = '<p style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-dim);font-family:var(--font-mono)">No graph data. Add .md files to content/ and rebuild.</p>';
+    return;
+  }
+
+  allNodes = data.nodes;
+  const width = innerWidth, height = innerHeight;
+
+  const tooltip = document.createElement('div');
+  tooltip.className = 'graph-tooltip';
+  document.body.appendChild(tooltip);
+
+  const svg = d3.select(container).append('svg').attr('width', '100%').attr('height', '100%');
+  const g = svg.append('g');
+  const zoom = d3.zoom().scaleExtent([0.3, 3]).on('zoom', ev => g.attr('transform', ev.transform));
+  svg.call(zoom);
+
+  const edgesSel = g.append('g').attr('class', 'edges').selectAll('line').data(data.edges).join('line').attr('stroke', '#2a2a2a').attr('stroke-opacity', 0.4).attr('stroke-width', 1);
+
+  const nodeSel = g.append('g').attr('class', 'nodes').selectAll('g').data(data.nodes).join('g').attr('cursor', 'pointer');
+  nodeSel.append('circle').attr('r', d => NODE_RADII[d.type] || 10).attr('fill', d => NODE_COLORS[d.type] || '#6abf69').attr('stroke', 'rgba(255,255,255,0.1)').attr('stroke-width', 1);
+  nodeSel.append('text').text(d => d.title).attr('text-anchor', 'middle').attr('dy', d => (NODE_RADII[d.type] || 10) + 14).attr('fill', '#e0e0e0').attr('font-size', d => { const r = NODE_RADII[d.type] || 10; return r >= 18 ? '11px' : r >= 10 ? '9px' : '7px'; }).attr('font-family', "'JetBrains Mono', monospace").attr('pointer-events', 'none').style('text-shadow', '0 0 6px rgba(0,0,0,0.9)');
+
+  const adj = new Map();
+  for (const e of data.edges) {
+    const s = typeof e.source === 'string' ? e.source : e.source.id;
+    const t = typeof e.target === 'string' ? e.target : e.target.id;
+    if (!adj.has(s)) adj.set(s, new Set());
+    if (!adj.has(t)) adj.set(t, new Set());
+    adj.get(s).add(t);
+    adj.get(t).add(s);
+  }
+
+  nodeSel.on('mouseover', function (ev, d) {
+    const c = adj.get(d.id) || new Set();
+    d3.select(this).select('circle').transition().duration(100).attr('transform', 'scale(1.6)');
+    tooltip.innerHTML = '<strong>' + d.title + '</strong><br>' + (d.description || '');
+    tooltip.style.left = (ev.pageX + 16) + 'px';
+    tooltip.style.top = (ev.pageY - 12) + 'px';
+    tooltip.classList.add('visible');
+    nodeSel.transition().duration(100).attr('opacity', n => (n.id === d.id || c.has(n.id)) ? 1 : 0.15);
+    edgesSel.transition().duration(100).attr('stroke-opacity', e => { const s = typeof e.source === 'string' ? e.source : e.source.id; const t = typeof e.target === 'string' ? e.target : e.target.id; return (s === d.id || t === d.id) ? 1 : 0.06; }).attr('stroke', e => { const s = typeof e.source === 'string' ? e.source : e.source.id; const t = typeof e.target === 'string' ? e.target : e.target.id; return (s === d.id || t === d.id) ? (NODE_COLORS[d.type] || '#7c6af7') : '#2a2a2a'; });
+  })
+    .on('mousemove', function (ev) { tooltip.style.left = (ev.pageX + 16) + 'px'; tooltip.style.top = (ev.pageY - 12) + 'px'; })
+    .on('mouseout', function () {
+      d3.select(this).select('circle').transition().duration(200).attr('transform', 'scale(1)');
+      tooltip.classList.remove('visible');
+      nodeSel.transition().duration(200).attr('opacity', 1);
+      edgesSel.transition().duration(200).attr('stroke-opacity', 0.4).attr('stroke', '#2a2a2a');
+    })
+    .on('click', function (ev, d) { ev.stopPropagation(); openBuffer(d); });
+
+  const drag = d3.drag().on('start', function (ev, d) { if (!ev.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }).on('drag', function (ev, d) { d.fx = ev.x; d.fy = ev.y; }).on('end', function (ev, d) { if (!ev.active) sim.alphaTarget(0); d.fx = null; d.fy = null; });
+  nodeSel.call(drag);
+
+  const sim = d3.forceSimulation(data.nodes).force('charge', d3.forceManyBody().strength(-200)).force('link', d3.forceLink(data.edges).id(d => d.id).distance(80)).force('center', d3.forceCenter(width / 2, height / 2)).force('collide', d3.forceCollide().radius(d => (NODE_RADII[d.type] || 10) + 4)).on('tick', () => {
+    edgesSel.attr('x1', e => e.source.x).attr('y1', e => e.source.y).attr('x2', e => e.target.x).attr('y2', e => e.target.y);
+    nodeSel.attr('transform', d => 'translate(' + (d.x || 0) + ',' + (d.y || 0) + ')');
+  });
+  sim.alpha(1).restart();
+
+  flyToFn = (nodeId) => {
+    const node = data.nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    const x = node.x || 0, y = node.y || 0;
+    svg.transition().duration(400).ease(d3.easeCubicInOut).call(zoom.transform, d3.zoomIdentity.translate(width / 2 - x, height / 2 - y).scale(1.5));
+    setTimeout(() => openBuffer(node), 420);
+  };
+
+  window.addEventListener('resize', () => { sim.force('center', d3.forceCenter(innerWidth / 2, innerHeight / 2)); sim.alpha(0.3).restart(); });
+}
+
+(async () => {
+  const container = document.getElementById('graph-container');
+  if (!container) return;
+  try {
+    const res = await fetch('/graph.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    mountGraph(container, data);
+    console.log('Graph loaded: ' + data.nodes.length + ' nodes, ' + data.edges.length + ' edges');
+  } catch (e) {
+    console.error('Graph load:', e);
+  }
+})();
+</script>

@@ -1,0 +1,22 @@
+{
+  "name": "graph-folio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npm run graph:build && astro dev",
+    "graph:build": "node scripts/build-graph.mjs",
+    "build": "npm run graph:build && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.7.0",
+    "d3": "^7.9.0",
+    "fuse.js": "^7.0.0",
+    "gray-matter": "^4.0.3",
+    "marked": "^17.0.6"
+  },
+  "devDependencies": {
+    "fast-glob": "^3.3.3"
+  }
+}
