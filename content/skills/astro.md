@@ -1,6 +1,6 @@
 ---
 title: "Astro"
-type: skill
+type: technology
 status: active
 tags: [framework, static, web]
 description: Static-first web framework. Markdown-native.
