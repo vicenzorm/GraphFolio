@@ -1,6 +1,6 @@
 ---
 title: "TypeScript"
-type: language
+type: technology
 status: active
 tags: [language, frontend, backend]
 description: Typed superset of JavaScript.
