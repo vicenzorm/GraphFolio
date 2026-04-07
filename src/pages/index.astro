@@ -59,6 +59,27 @@ const NODE_COLORS = { project: '#0087BD', technology: '#009F6B', concept: '#FFD7
 const NODE_RADII = { project: 18, technology: 10, concept: 7, social: 9, experience: 12, about: 18 };
 let flyToFn = null, allNodes = [], bufferVisible = false, searchVisible = false, fuseIdx = null, sResults = [], sIdx = 0, searchKeyHandler = null;
 
+function normalizeNodeKey(value) {
+  return (value || '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
+function resolveWikilinkTarget(rawLabel) {
+  const label = normalizeNodeKey(rawLabel);
+  if (!label) return null;
+
+  return allNodes.find(n => {
+    const byId = normalizeNodeKey(n.id) === label;
+    const byTitle = normalizeNodeKey(n.title) === label;
+    return byId || byTitle;
+  }) || null;
+}
+
 function marked(body) { return markedParse(body, { async: false }); }
 
 function toLabelType(type) {
@@ -81,6 +102,29 @@ function openBuffer(node) {
   bd.appendChild(pnl);
   const close = () => closeBuffer();
   pnl.querySelector('.buffer-close').addEventListener('click', close);
+
+  const bufferBody = pnl.querySelector('.buffer-body');
+  if (bufferBody) {
+    bufferBody.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement) || !target.classList.contains('wikilink')) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const rawLabel = target.textContent || '';
+      const linkedNode = resolveWikilinkTarget(rawLabel);
+      if (!linkedNode) return;
+
+      closeBuffer();
+      if (flyToFn) {
+        flyToFn(linkedNode.id);
+      } else {
+        openBuffer(linkedNode);
+      }
+    });
+  }
+
   bd.addEventListener('click', e => { if (e.target === bd) close(); });
   document.body.appendChild(bd);
   bufferVisible = true;
@@ -296,7 +340,12 @@ function mountGraph(container, data) {
 
   const svg = d3.select(container).append('svg').attr('width', '100%').attr('height', '100%');
   const defs = svg.append('defs');
-  const socialGlow = defs.append('filter').attr('id', 'social-glow');
+  const socialGlow = defs.append('filter')
+    .attr('id', 'social-glow')
+    .attr('x', '-250%')
+    .attr('y', '-250%')
+    .attr('width', '600%')
+    .attr('height', '600%');
   socialGlow.append('feGaussianBlur').attr('stdDeviation', '3').attr('result', 'coloredBlur');
   const socialGlowMerge = socialGlow.append('feMerge');
   socialGlowMerge.append('feMergeNode').attr('in', 'coloredBlur');
