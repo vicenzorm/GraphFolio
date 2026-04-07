@@ -24,14 +24,29 @@ import '../styles/components.css';
 
     <header id="site-header">
       <h1>Vicenzo Masera</h1>
-      <p class="site-subtitle">Desenvolvedor de Software</p>
+      <p class="site-subtitle">Software Engineer</p>
+      <p id="onboarding-hint">click a node to explore  ·  Cmd+K to search</p>
     </header>
 
-    <div id="usage-hint">
-      <span><kbd>Cmd+K</kbd> ou <kbd>Ctrl+K</kbd> para buscar no grafo</span>
-      <span><kbd>Esc</kbd> para fechar</span>
-      <span class="hint-scroll">role para zoom, arraste para mover</span>
+    <div id="hud-left">
+      <div id="color-cheatsheet" aria-label="Node color legend">
+        <p class="legend-title">HOW TO NAVIGATE</p>
+        <ul>
+          <li><span class="legend-dot legend-project"></span><span>Project</span></li>
+          <li><span class="legend-dot legend-technology"></span><span>Technology</span></li>
+          <li><span class="legend-dot legend-social"></span><span>Social</span><span class="legend-annotation">← external links</span></li>
+          <li><span class="legend-dot legend-about"></span><span>About</span><span class="legend-annotation">← start here</span></li>
+          <li><span class="legend-dot legend-experience"></span><span>Experiences</span></li>
+        </ul>
+      </div>
     </div>
+
+    <button id="search-trigger" aria-label="Search (Cmd+K)" title="Search (Cmd+K)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+        <path d="M16.65 16.65L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </button>
   </body>
 </html>
 
@@ -40,26 +55,29 @@ import * as d3 from 'd3';
 import Fuse from 'fuse.js';
 import { parse as markedParse } from 'marked';
 
-const NODE_COLORS = { project: '#7c6af7', skill: '#4fc3f7', language: '#4fc3f7', concept: '#6abf69' };
-const NODE_RADII = { project: 18, skill: 10, language: 10, concept: 7 };
-let flyToFn = null, allNodes = [], bufferVisible = false, searchVisible = false, fuseIdx = null, sResults = [], sIdx = 0, cmdSheetVisible = false;
+const NODE_COLORS = { project: '#0087BD', technology: '#009F6B', concept: '#FFD700', social: '#FF1493', experience: '#C40233', about: '#f5f5f0' };
+const NODE_RADII = { project: 18, technology: 10, concept: 7, social: 9, experience: 12, about: 18 };
+let flyToFn = null, allNodes = [], bufferVisible = false, searchVisible = false, fuseIdx = null, sResults = [], sIdx = 0, searchKeyHandler = null;
 
 function marked(body) { return markedParse(body, { async: false }); }
 
+function toLabelType(type) {
+  if (!type) return '';
+  return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
 function closeBuffer() {
   if (!bufferVisible) return; bufferVisible = false;
-  document.removeEventListener('keydown', onCmdKey);
-  closeCmdSheet();
   const bd = document.querySelector('.node-buffer-backdrop');
   if (bd) { const p = bd.querySelector('div'); if(p) p.classList.remove('visible'); setTimeout(() => bd.remove(), 130); }
 }
 
 function openBuffer(node) {
-  closeBuffer(); closeCmdSheet();
+  closeBuffer();
   const bd = document.createElement('div'); bd.className = 'node-buffer-backdrop';
   const pnl = document.createElement('div');
   const rendered = marked(node.body);
-  pnl.innerHTML = '<div class="buffer-header"><span class="buffer-title">' + node.title + '</span><button class="buffer-close">:q</button></div><div class="buffer-body">' + rendered.replace(/\[\[([^\]]+)\]\]/g, '<span class="wikilink">$1</span>') + '</div>';
+  pnl.innerHTML = '<div class="buffer-header"><span class="buffer-title">' + node.title + '</span><button class="buffer-close" aria-label="Close">Close</button></div><div class="buffer-body">' + rendered.replace(/\[\[([^\]]+)\]\]/g, '<span class="wikilink">$1</span>') + '</div>';
   bd.appendChild(pnl);
   const close = () => closeBuffer();
   pnl.querySelector('.buffer-close').addEventListener('click', close);
@@ -67,63 +85,66 @@ function openBuffer(node) {
   document.body.appendChild(bd);
   bufferVisible = true;
   requestAnimationFrame(() => pnl.classList.add('visible'));
-  // ':' opens command sheet when buffer is visible
-  document.addEventListener('keydown', onCmdKey);
 }
 
 function closeSearch() {
   searchVisible = false; sResults = [];
+  if (searchKeyHandler) {
+    document.removeEventListener('keydown', searchKeyHandler);
+    searchKeyHandler = null;
+  }
   const el = document.querySelector('.omni-backdrop');
   if (el) { el.querySelector('div')?.classList.remove('visible'); setTimeout(() => el.remove(), 130); }
 }
 
-function openCmdSheet() {
-  if (cmdSheetVisible) return;
-  cmdSheetVisible = true;
-  const sheet = document.createElement('div');
-  sheet.className = 'cmd-sheet';
-  sheet.id = 'cmd-sheet';
-  sheet.innerHTML = '<div class="cmd-sheet-inner"><div class="cmd-line"><span class="cmd-prompt">:</span><input class="cmd-input" type="text" placeholder="comando..." autocomplete="off" /></div><div class="cmd-hints"><span><kbd>q</kbd> fechar buffer</span><span><kbd>Esc</kbd> cancelar</span></div></div>';
-  document.body.appendChild(sheet);
-  requestAnimationFrame(() => sheet.classList.add('visible'));
-  sheet.querySelector('.cmd-input')?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === 'Escape') {
-      e.preventDefault();
-      const val = e.target.value.trim();
-      closeCmdSheet();
-      if (e.key === 'Enter' && val === 'q') closeBuffer();
+function updateActiveResult(bd, shouldScroll = true) {
+  const items = bd.querySelectorAll('.omni-result');
+  items.forEach((el, idx) => {
+    const isActive = idx === sIdx;
+    el.classList.toggle('active', isActive);
+    el.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    if (isActive && shouldScroll) {
+      el.scrollIntoView({ block: 'nearest' });
     }
   });
 }
 
-function closeCmdSheet() {
-  cmdSheetVisible = false;
-  const el = document.querySelector('.cmd-sheet');
-  if (el) { el.classList.remove('visible'); setTimeout(() => el.remove(), 120); }
-}
-
-function onCmdKey(e) {
-  if (bufferVisible && e.key === ':' && !cmdSheetVisible) {
-    e.preventDefault();
-    openCmdSheet();
-  }
+function moveSelection(delta, bd) {
+  if (sResults.length === 0) return;
+  sIdx = (sIdx + delta + sResults.length) % sResults.length;
+  updateActiveResult(bd, true);
 }
 
 function renderResults(bd) {
   const rl = bd.querySelector('.omni-results');
   if (!rl) return;
-  if (sResults.length === 0) { rl.innerHTML = '<div class="omni-empty">No matches found.</div>'; return; }
+  if (sResults.length === 0) {
+    rl.innerHTML = '<div class="omni-empty">No matches found.</div>';
+    return;
+  }
+
   rl.innerHTML = sResults.map((n, i) => {
-    const c = NODE_COLORS[n.type] || '#888';
-    return '<div class="omni-result' + (i === sIdx ? ' active' : '') + '" data-i="' + i + '"><span class="omni-badge" style="background:' + c + '22;color:' + c + ';border:1px solid ' + c + '55">' + n.type.toUpperCase() + '</span><span class="omni-result-title">' + n.title + '</span>' + (n.description ? '<span class="omni-result-desc"> — ' + n.description + '</span>' : '') + '</div>';
+    const c = NODE_COLORS[n.type] || '#696969';
+    return '<div class="omni-result' + (i === sIdx ? ' active' : '') + '" role="option" aria-selected="' + (i === sIdx ? 'true' : 'false') + '" data-i="' + i + '"><span class="omni-badge" style="background:' + c + '22;color:' + c + ';border:1px solid ' + c + '55">' + n.type.toUpperCase() + '</span><span class="omni-result-title">' + n.title + '</span>' + (n.description ? '<span class="omni-result-desc"> — ' + n.description + '</span>' : '') + '</div>';
   }).join('');
+
   rl.querySelectorAll('.omni-result').forEach(el => {
+    el.addEventListener('mousemove', () => {
+      const idx = parseInt(el.dataset.i);
+      if (Number.isNaN(idx) || idx === sIdx) return;
+      sIdx = idx;
+      updateActiveResult(bd, false);
+    });
+
     el.addEventListener('click', () => {
       const idx = parseInt(el.dataset.i);
-      closeSearch();
-      if (flyToFn) flyToFn(sResults[idx].id);
+      const targetId = sResults[idx].id;
+      closeSearch(); closeBuffer();
+      if (flyToFn) flyToFn(targetId);
     });
   });
+
+  updateActiveResult(bd, true);
 }
 
 function openOmniSearch(nodes) {
@@ -134,8 +155,9 @@ function openOmniSearch(nodes) {
   sResults = nodes.slice(0, 15);
   const bd = document.createElement('div');
   bd.className = 'omni-backdrop';
-  bd.innerHTML = '<div><input class="omni-input" type="text" placeholder="Search nodes..." autocomplete="off" /><div class="omni-results"></div><div class="omni-footer"><span>Enter: open</span><span>Up/Down: navigate</span><span>Esc: close</span></div></div>';
-  bd.querySelector('.omni-input').addEventListener('input', function () {
+  bd.innerHTML = '<div><input class="omni-input" type="text" placeholder="Type to search nodes..." autocomplete="off" /><div class="omni-results" role="listbox"></div><div class="omni-footer"><span>Enter: open</span><span>↑↓ / Ctrl+N,P: navigate</span><span>Esc: close</span></div></div>';
+  const inputEl = bd.querySelector('.omni-input');
+  inputEl.addEventListener('input', function () {
     const q = this.value.trim();
     if (!q || !fuseIdx) { sResults = nodes.slice(0, 15); }
     else { sResults = fuseIdx.search(q).slice(0, 15).map(r => r.item); }
@@ -143,22 +165,55 @@ function openOmniSearch(nodes) {
     renderResults(bd);
   });
   bd.addEventListener('click', e => { if (e.target === bd) closeSearch(); });
-  document.addEventListener('keydown', function sk(e) {
+  searchKeyHandler = function (e) {
     if (!searchVisible) return;
-    if (e.key === 'Escape') { e.preventDefault(); closeSearch(); }
-    else if (e.key === 'ArrowDown' || (e.ctrlKey && e.key.toLowerCase() === 'n' && !e.metaKey)) { e.preventDefault(); sIdx = (sIdx + 1) % Math.max(1, sResults.length); renderResults(bd); }
-    else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key.toLowerCase() === 'p' && !e.metaKey)) { e.preventDefault(); sIdx = (sIdx - 1 + Math.max(1, sResults.length)) % Math.max(1, sResults.length); renderResults(bd); }
-    else if (e.key === 'Enter') { e.preventDefault(); if (sResults[sIdx] && flyToFn) { closeSearch(); flyToFn(sResults[sIdx].id); } }
-  });
+    const key = e.key.toLowerCase();
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeSearch();
+      return;
+    }
+
+    if (e.key === 'ArrowDown' || (e.ctrlKey && key === 'n' && !e.metaKey) || (e.ctrlKey && key === 'j' && !e.metaKey)) {
+      e.preventDefault();
+      moveSelection(1, bd);
+      return;
+    }
+
+    if (e.key === 'ArrowUp' || (e.ctrlKey && key === 'p' && !e.metaKey) || (e.ctrlKey && key === 'k' && !e.metaKey)) {
+      e.preventDefault();
+      moveSelection(-1, bd);
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (sResults[sIdx] && flyToFn) {
+        const targetId = sResults[sIdx].id;
+        closeSearch();
+        closeBuffer();
+        flyToFn(targetId);
+      }
+    }
+  };
+  document.addEventListener('keydown', searchKeyHandler);
   document.body.appendChild(bd);
-  requestAnimationFrame(() => bd.querySelector('div').classList.add('visible'));
-  renderResults(bd);
+  requestAnimationFrame(() => {
+    bd.querySelector('div').classList.add('visible');
+    inputEl.focus();
+    renderResults(bd);
+  });
+}
+
+function triggerSearch() {
+  if (allNodes.length > 0) openOmniSearch(allNodes);
 }
 
 document.addEventListener('keydown', e => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault();
-    if (allNodes.length > 0) openOmniSearch(allNodes);
+    triggerSearch();
     return;
   }
   if (e.key === 'Escape' && (bufferVisible || searchVisible)) {
@@ -167,6 +222,64 @@ document.addEventListener('keydown', e => {
     closeSearch();
   }
 });
+
+function setupOnboardingHint() {
+  const hintEl = document.getElementById('onboarding-hint');
+  if (!hintEl) return;
+
+  setTimeout(() => {
+    hintEl.classList.add('is-fading-out');
+  }, 5600);
+
+  setTimeout(() => {
+    hintEl.style.display = 'none';
+  }, 6400);
+}
+
+function pulseNode(selection, baseRadius) {
+  let count = 0;
+  function doPulse() {
+    if (count >= 3) return;
+    count++;
+    selection
+      .transition().duration(500).ease(d3.easeSinInOut)
+      .attr('r', baseRadius * 1.35)
+      .style('opacity', 0.7)
+      .transition().duration(500).ease(d3.easeSinInOut)
+      .attr('r', baseRadius)
+      .style('opacity', 1)
+      .on('end', doPulse);
+  }
+  doPulse();
+}
+
+function getPulseTargetIds(nodes, edges) {
+  const aboutOrHome = nodes.find(n => n.type === 'about' || n.type === 'home');
+  if (aboutOrHome) return [aboutOrHome.id];
+
+  const degreeById = new Map();
+  nodes.forEach(n => degreeById.set(n.id, 0));
+  edges.forEach(e => {
+    const sourceId = typeof e.source === 'string' ? e.source : e.source.id;
+    const targetId = typeof e.target === 'string' ? e.target : e.target.id;
+    degreeById.set(sourceId, (degreeById.get(sourceId) || 0) + 1);
+    degreeById.set(targetId, (degreeById.get(targetId) || 0) + 1);
+  });
+
+  const projectNodes = nodes.filter(n => n.type === 'project');
+  if (projectNodes.length === 0) return [];
+
+  let mostConnectedProject = projectNodes[0];
+  let maxDegree = degreeById.get(mostConnectedProject.id) || 0;
+  for (const node of projectNodes) {
+    const degree = degreeById.get(node.id) || 0;
+    if (degree > maxDegree) {
+      mostConnectedProject = node;
+      maxDegree = degree;
+    }
+  }
+  return [mostConnectedProject.id];
+}
 
 function mountGraph(container, data) {
   if (data.nodes.length === 0) {
@@ -182,15 +295,27 @@ function mountGraph(container, data) {
   document.body.appendChild(tooltip);
 
   const svg = d3.select(container).append('svg').attr('width', '100%').attr('height', '100%');
+  const defs = svg.append('defs');
+  const socialGlow = defs.append('filter').attr('id', 'social-glow');
+  socialGlow.append('feGaussianBlur').attr('stdDeviation', '3').attr('result', 'coloredBlur');
+  const socialGlowMerge = socialGlow.append('feMerge');
+  socialGlowMerge.append('feMergeNode').attr('in', 'coloredBlur');
+  socialGlowMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
   const g = svg.append('g');
   const zoom = d3.zoom().scaleExtent([0.3, 3]).on('zoom', ev => g.attr('transform', ev.transform));
   svg.call(zoom);
 
-  const edgesSel = g.append('g').attr('class', 'edges').selectAll('line').data(data.edges).join('line').attr('stroke', '#2a2a2a').attr('stroke-opacity', 0.4).attr('stroke-width', 1);
+  const edgesSel = g.append('g').attr('class', 'edges').selectAll('line').data(data.edges).join('line').attr('stroke', '#696969').attr('stroke-opacity', 0.4).attr('stroke-width', 1);
 
   const nodeSel = g.append('g').attr('class', 'nodes').selectAll('g').data(data.nodes).join('g').attr('cursor', 'pointer');
-  nodeSel.append('circle').attr('r', d => NODE_RADII[d.type] || 10).attr('fill', d => NODE_COLORS[d.type] || '#6abf69').attr('stroke', 'rgba(255,255,255,0.1)').attr('stroke-width', 1);
-  nodeSel.append('text').text(d => d.title).attr('text-anchor', 'middle').attr('dy', d => (NODE_RADII[d.type] || 10) + 14).attr('fill', '#e0e0e0').attr('font-size', d => { const r = NODE_RADII[d.type] || 10; return r >= 18 ? '11px' : r >= 10 ? '9px' : '7px'; }).attr('font-family', "'JetBrains Mono', monospace").attr('pointer-events', 'none').style('text-shadow', '0 0 6px rgba(0,0,0,0.9)');
+  nodeSel.append('circle').attr('class', 'node-core').attr('r', d => NODE_RADII[d.type] || 10).attr('fill', d => NODE_COLORS[d.type] || '#009F6B').attr('stroke', 'rgba(198,198,196,0.2)').attr('stroke-width', 1).attr('filter', d => d.type === 'social' ? 'url(#social-glow)' : null);
+  nodeSel.filter(d => d.type === 'about').append('circle').attr('class', 'about-ring').attr('r', d => (NODE_RADII[d.type] || 10) + 6).attr('fill', 'none').attr('stroke', '#f5f5f0').attr('stroke-opacity', 0.3).attr('stroke-width', 1);
+  nodeSel.append('text').text(d => d.type === 'social' ? (d.title + ' ↗') : d.title).attr('text-anchor', 'middle').attr('dy', d => (NODE_RADII[d.type] || 10) + (d.type === 'about' ? 16 : 14)).attr('fill', '#C6C6C4').attr('font-size', d => {
+    if (d.type === 'about') return '13px';
+    const r = NODE_RADII[d.type] || 10;
+    return r >= 18 ? '11px' : r >= 10 ? '9px' : '7px';
+  }).attr('font-weight', d => d.type === 'about' ? 700 : 400).attr('font-family', "'JetBrains Mono', monospace").attr('pointer-events', 'none').style('text-shadow', '0 0 6px rgba(0,0,0,0.9)');
 
   const adj = new Map();
   for (const e of data.edges) {
@@ -204,31 +329,76 @@ function mountGraph(container, data) {
 
   nodeSel.on('mouseover', function (ev, d) {
     const c = adj.get(d.id) || new Set();
-    d3.select(this).select('circle').transition().duration(100).attr('transform', 'scale(1.6)');
-    tooltip.innerHTML = '<strong>' + d.title + '</strong><br>' + (d.description || '');
-    tooltip.style.left = (ev.pageX + 16) + 'px';
+    const nodeColor = NODE_COLORS[d.type] || '#696969';
+    const metaLine = d.year ? (toLabelType(d.type) + ' · ' + d.year) : toLabelType(d.type);
+    const descLine = d.description ? ('<span class="tooltip-desc">"' + d.description + '"</span>') : '';
+
+    d3.select(this).select('.node-core').transition().duration(100).attr('transform', 'scale(1.6)');
+
+    tooltip.innerHTML =
+      '<span class="tooltip-title">' + d.title + '</span>' +
+      '<span class="tooltip-meta" style="color:' + nodeColor + '">' + metaLine + '</span>' +
+      descLine;
+    tooltip.style.borderLeftColor = nodeColor;
+    tooltip.style.left = (ev.pageX + 12) + 'px';
     tooltip.style.top = (ev.pageY - 12) + 'px';
     tooltip.classList.add('visible');
+
     nodeSel.transition().duration(100).attr('opacity', n => (n.id === d.id || c.has(n.id)) ? 1 : 0.15);
-    edgesSel.transition().duration(100).attr('stroke-opacity', e => { const s = typeof e.source === 'string' ? e.source : e.source.id; const t = typeof e.target === 'string' ? e.target : e.target.id; return (s === d.id || t === d.id) ? 1 : 0.06; }).attr('stroke', e => { const s = typeof e.source === 'string' ? e.source : e.source.id; const t = typeof e.target === 'string' ? e.target : e.target.id; return (s === d.id || t === d.id) ? (NODE_COLORS[d.type] || '#7c6af7') : '#2a2a2a'; });
+    edgesSel.transition().duration(100).attr('stroke-opacity', e => { const s = typeof e.source === 'string' ? e.source : e.source.id; const t = typeof e.target === 'string' ? e.target : e.target.id; return (s === d.id || t === d.id) ? 1 : 0.06; }).attr('stroke', e => { const s = typeof e.source === 'string' ? e.source : e.source.id; const t = typeof e.target === 'string' ? e.target : e.target.id; return (s === d.id || t === d.id) ? nodeColor : '#696969'; });
   })
-    .on('mousemove', function (ev) { tooltip.style.left = (ev.pageX + 16) + 'px'; tooltip.style.top = (ev.pageY - 12) + 'px'; })
+    .on('mousemove', function (ev) { tooltip.style.left = (ev.pageX + 12) + 'px'; tooltip.style.top = (ev.pageY - 12) + 'px'; })
     .on('mouseout', function () {
-      d3.select(this).select('circle').transition().duration(200).attr('transform', 'scale(1)');
+      d3.select(this).select('.node-core').transition().duration(200).attr('transform', 'scale(1)');
       tooltip.classList.remove('visible');
       nodeSel.transition().duration(200).attr('opacity', 1);
-      edgesSel.transition().duration(200).attr('stroke-opacity', 0.4).attr('stroke', '#2a2a2a');
+      edgesSel.transition().duration(200).attr('stroke-opacity', 0.4).attr('stroke', '#696969');
     })
-    .on('click', function (ev, d) { ev.stopPropagation(); openBuffer(d); });
+    .on('click', function (ev, d) {
+      ev.stopPropagation();
+      if (d.type === 'social' && d.url) {
+        window.open(d.url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      openBuffer(d);
+    });
 
   const drag = d3.drag().on('start', function (ev, d) { if (!ev.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }).on('drag', function (ev, d) { d.fx = ev.x; d.fy = ev.y; }).on('end', function (ev, d) { if (!ev.active) sim.alphaTarget(0); d.fx = null; d.fy = null; });
   nodeSel.call(drag);
+
+  const aboutNode = data.nodes.find(n => n.type === 'about');
+  if (aboutNode) {
+    aboutNode.fx = width / 2;
+    aboutNode.fy = height / 2;
+  }
 
   const sim = d3.forceSimulation(data.nodes).force('charge', d3.forceManyBody().strength(-200)).force('link', d3.forceLink(data.edges).id(d => d.id).distance(80)).force('center', d3.forceCenter(width / 2, height / 2)).force('collide', d3.forceCollide().radius(d => (NODE_RADII[d.type] || 10) + 4)).on('tick', () => {
     edgesSel.attr('x1', e => e.source.x).attr('y1', e => e.source.y).attr('x2', e => e.target.x).attr('y2', e => e.target.y);
     nodeSel.attr('transform', d => 'translate(' + (d.x || 0) + ',' + (d.y || 0) + ')');
   });
   sim.alpha(1).restart();
+
+  if (aboutNode) {
+    setTimeout(() => {
+      aboutNode.fx = null;
+      aboutNode.fy = null;
+      sim.alpha(0.35).restart();
+    }, 2000);
+  }
+
+  setTimeout(() => {
+    const pulseTargetIds = getPulseTargetIds(data.nodes, data.edges);
+    if (pulseTargetIds.length === 0) return;
+
+    const pulseSet = new Set(pulseTargetIds);
+    nodeSel
+      .filter(d => pulseSet.has(d.id))
+      .select('.node-core')
+      .each(function (d) {
+        const baseRadius = NODE_RADII[d.type] || 10;
+        pulseNode(d3.select(this), baseRadius);
+      });
+  }, 1200);
 
   flyToFn = (nodeId) => {
     const node = data.nodes.find(n => n.id === nodeId);
@@ -238,13 +408,6 @@ function mountGraph(container, data) {
     setTimeout(() => openBuffer(node), 420);
   };
 
-  // Auto-hide usage hint after 5s
-  const hint = document.getElementById('usage-hint');
-  if (hint) {
-    setTimeout(() => { hint.style.opacity = '0.25'; }, 5000);
-    hint.addEventListener('mouseenter', () => { hint.style.opacity = '1'; });
-    hint.addEventListener('mouseleave', () => { hint.style.opacity = '0.25'; });
-  }
 
   window.addEventListener('resize', () => { sim.force('center', d3.forceCenter(innerWidth / 2, innerHeight / 2)); sim.alpha(0.3).restart(); });
 }
@@ -256,7 +419,16 @@ function mountGraph(container, data) {
     const res = await fetch('/graph.json');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
+    setupOnboardingHint();
     mountGraph(container, data);
+
+    const searchTrigger = document.getElementById('search-trigger');
+    if (searchTrigger) {
+      searchTrigger.addEventListener('click', () => {
+        triggerSearch();
+      });
+    }
+
     console.log('Graph loaded: ' + data.nodes.length + ' nodes, ' + data.edges.length + ' edges');
   } catch (e) {
     console.error('Graph load:', e);
