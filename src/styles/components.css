@@ -171,8 +171,13 @@
 /* Wikilinks in buffer body */
 .wikilink {
   color: var(--accent);
-  cursor: default;
+  cursor: pointer;
   font-weight: 600;
+  text-decoration: underline;
+}
+
+.wikilink:hover {
+  color: var(--accent-2);
 }
 
 /* ============================
