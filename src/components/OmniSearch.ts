@@ -10,10 +10,11 @@ export interface SearchNode {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  project: '#7c6af7',
-  skill: '#4fc3f7',
-  language: '#4fc3f7',
-  concept: '#6abf69',
+  project: '#0087BD',
+  technology: '#009F6B',
+  concept: '#FFD700',
+  social: '#FF1493',
+  experience: '#C40233',
 };
 
 const backdrop = document.createElement('div');
@@ -29,7 +30,7 @@ let onEnter: ((nodeId: string) => void) | null = null;
 let isOpen = false;
 
 function getTypeBadge(type: string): string {
-  const color = TYPE_COLORS[type] || '#888';
+  const color = TYPE_COLORS[type] || '#696969';
   return `<span class="omni-badge" style="background:${color}22;color:${color};border:1px solid ${color}55">${type.toUpperCase()}</span>`;
 }
 
