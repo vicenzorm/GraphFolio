@@ -241,6 +241,14 @@ function mountGraph(container: HTMLElement, data: GraphData): void {
     sim.force('center', d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2) as any);
     sim.alpha(0.3).restart();
   });
+
+  // Auto-hide usage hint after 5s
+  const hint = document.getElementById('usage-hint');
+  if (hint) {
+    setTimeout(() => { hint.style.opacity = '0.25'; }, 5000);
+    hint.addEventListener('mouseenter', () => { hint.style.opacity = '1'; });
+    hint.addEventListener('mouseleave', () => { hint.style.opacity = '0.25'; });
+  }
 }
 
 // ====== BOOT ======
