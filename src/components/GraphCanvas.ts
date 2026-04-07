@@ -24,17 +24,19 @@ export interface GraphData {
 export type OnNodeClick = (nodeId: string) => void;
 
 const NODE_COLORS: Record<string, string> = {
-  project: '#7c6af7',
-  skill: '#4fc3f7',
-  language: '#4fc3f7',
-  concept: '#6abf69',
+  project: '#0087BD',
+  technology: '#009F6B',
+  concept: '#FFD700',
+  social: '#FF1493',
+  experience: '#C40233',
 };
 
 const NODE_RADIUSES: Record<string, number> = {
   project: 18,
-  skill: 10,
-  language: 10,
+  technology: 10,
   concept: 7,
+  social: 9,
+  experience: 12,
 };
 
 export function mountGraph(
@@ -85,7 +87,7 @@ export function mountGraph(
     .selectAll<SVGLineElement, GraphEdge>('line')
     .data(data.edges)
     .join('line')
-    .attr('stroke', '#2a2a2a')
+    .attr('stroke', '#696969')
     .attr('stroke-opacity', 0.4)
     .attr('stroke-width', 1);
 
@@ -101,7 +103,7 @@ export function mountGraph(
   nodeGroups.append('circle')
     .attr('r', (d) => NODE_RADIUSES[d.type] || 10)
     .attr('fill', (d) => NODE_COLORS[d.type] || NODE_COLORS.concept)
-    .attr('stroke', 'rgba(255,255,255,0.1)')
+    .attr('stroke', 'rgba(198,198,196,0.2)')
     .attr('stroke-width', 1);
 
   // Node labels
@@ -109,7 +111,7 @@ export function mountGraph(
     .text((d) => d.title)
     .attr('text-anchor', 'middle')
     .attr('dy', (d) => (NODE_RADIUSES[d.type] || 10) + 14)
-    .attr('fill', '#e0e0e0')
+    .attr('fill', '#C6C6C4')
     .attr('font-size', (d) => {
       const r = NODE_RADIUSES[d.type] || 10;
       return r >= 18 ? '11px' : r >= 10 ? '9px' : '7px';
@@ -157,7 +159,7 @@ export function mountGraph(
       .attr('stroke', (e: GraphEdge) => {
         const src = typeof e.source === 'string' ? e.source : (e.source as any).id;
         const tgt = typeof e.target === 'string' ? e.target : (e.target as any).id;
-        return (src === nodeId || tgt === nodeId) ? NODE_COLORS[d.type] || '#7c6af7' : '#2a2a2a';
+        return (src === nodeId || tgt === nodeId) ? NODE_COLORS[d.type] || '#0087BD' : '#696969';
       });
 
     onNodeHover(d);
@@ -176,7 +178,7 @@ export function mountGraph(
     nodeGroups.transition().duration(200).attr('opacity', 1);
     edges.transition().duration(200)
       .attr('stroke-opacity', 0.4)
-      .attr('stroke', '#2a2a2a');
+      .attr('stroke', '#696969');
 
     onNodeHover(null);
   });
