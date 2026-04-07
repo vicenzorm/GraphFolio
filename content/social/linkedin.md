@@ -10,4 +10,4 @@ url: https://www.linkedin.com/in/vicenzomasera/
 
 Professional background, experience timeline, and updates.
 
-[[Graph Folio]]
+[[About]]
