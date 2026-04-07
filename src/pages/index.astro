@@ -21,6 +21,17 @@ import '../styles/components.css';
   </head>
   <body>
     <div id="graph-container"></div>
+
+    <header id="site-header">
+      <h1>Vicenzo Masera</h1>
+      <p class="site-subtitle">Desenvolvedor de Software</p>
+    </header>
+
+    <div id="usage-hint">
+      <span><kbd>Cmd+K</kbd> ou <kbd>Ctrl+K</kbd> para buscar no grafo</span>
+      <span><kbd>Esc</kbd> para fechar</span>
+      <span class="hint-scroll">role para zoom, arraste para mover</span>
+    </div>
   </body>
 </html>
 
@@ -31,22 +42,24 @@ import { parse as markedParse } from 'marked';
 
 const NODE_COLORS = { project: '#7c6af7', skill: '#4fc3f7', language: '#4fc3f7', concept: '#6abf69' };
 const NODE_RADII = { project: 18, skill: 10, language: 10, concept: 7 };
-let flyToFn = null, allNodes = [], bufferVisible = false, searchVisible = false, fuseIdx = null, sResults = [], sIdx = 0;
+let flyToFn = null, allNodes = [], bufferVisible = false, searchVisible = false, fuseIdx = null, sResults = [], sIdx = 0, cmdSheetVisible = false;
 
 function marked(body) { return markedParse(body, { async: false }); }
 
 function closeBuffer() {
   if (!bufferVisible) return; bufferVisible = false;
+  document.removeEventListener('keydown', onCmdKey);
+  closeCmdSheet();
   const bd = document.querySelector('.node-buffer-backdrop');
   if (bd) { const p = bd.querySelector('div'); if(p) p.classList.remove('visible'); setTimeout(() => bd.remove(), 130); }
 }
 
 function openBuffer(node) {
-  closeBuffer();
+  closeBuffer(); closeCmdSheet();
   const bd = document.createElement('div'); bd.className = 'node-buffer-backdrop';
   const pnl = document.createElement('div');
   const rendered = marked(node.body);
-  pnl.innerHTML = '<div class="buffer-header"><div class="buffer-dots"><span class="buffer-dot red"></span><span class="buffer-dot yellow"></span><span class="buffer-dot green"></span></div><span class="buffer-title">' + node.title + '</span><button class="buffer-close">:q</button></div><div class="buffer-body">' + rendered.replace(/\[\[([^\]]+)\]\]/g, '<span class="wikilink">$1</span>') + '</div>';
+  pnl.innerHTML = '<div class="buffer-header"><span class="buffer-title">' + node.title + '</span><button class="buffer-close">:q</button></div><div class="buffer-body">' + rendered.replace(/\[\[([^\]]+)\]\]/g, '<span class="wikilink">$1</span>') + '</div>';
   bd.appendChild(pnl);
   const close = () => closeBuffer();
   pnl.querySelector('.buffer-close').addEventListener('click', close);
@@ -54,12 +67,46 @@ function openBuffer(node) {
   document.body.appendChild(bd);
   bufferVisible = true;
   requestAnimationFrame(() => pnl.classList.add('visible'));
+  // ':' opens command sheet when buffer is visible
+  document.addEventListener('keydown', onCmdKey);
 }
 
 function closeSearch() {
   searchVisible = false; sResults = [];
   const el = document.querySelector('.omni-backdrop');
   if (el) { el.querySelector('div')?.classList.remove('visible'); setTimeout(() => el.remove(), 130); }
+}
+
+function openCmdSheet() {
+  if (cmdSheetVisible) return;
+  cmdSheetVisible = true;
+  const sheet = document.createElement('div');
+  sheet.className = 'cmd-sheet';
+  sheet.id = 'cmd-sheet';
+  sheet.innerHTML = '<div class="cmd-sheet-inner"><div class="cmd-line"><span class="cmd-prompt">:</span><input class="cmd-input" type="text" placeholder="comando..." autocomplete="off" /></div><div class="cmd-hints"><span><kbd>q</kbd> fechar buffer</span><span><kbd>Esc</kbd> cancelar</span></div></div>';
+  document.body.appendChild(sheet);
+  requestAnimationFrame(() => sheet.classList.add('visible'));
+  sheet.querySelector('.cmd-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      e.preventDefault();
+      const val = e.target.value.trim();
+      closeCmdSheet();
+      if (e.key === 'Enter' && val === 'q') closeBuffer();
+    }
+  });
+}
+
+function closeCmdSheet() {
+  cmdSheetVisible = false;
+  const el = document.querySelector('.cmd-sheet');
+  if (el) { el.classList.remove('visible'); setTimeout(() => el.remove(), 120); }
+}
+
+function onCmdKey(e) {
+  if (bufferVisible && e.key === ':' && !cmdSheetVisible) {
+    e.preventDefault();
+    openCmdSheet();
+  }
 }
 
 function renderResults(bd) {
@@ -190,6 +237,14 @@ function mountGraph(container, data) {
     svg.transition().duration(400).ease(d3.easeCubicInOut).call(zoom.transform, d3.zoomIdentity.translate(width / 2 - x, height / 2 - y).scale(1.5));
     setTimeout(() => openBuffer(node), 420);
   };
+
+  // Auto-hide usage hint after 5s
+  const hint = document.getElementById('usage-hint');
+  if (hint) {
+    setTimeout(() => { hint.style.opacity = '0.25'; }, 5000);
+    hint.addEventListener('mouseenter', () => { hint.style.opacity = '1'; });
+    hint.addEventListener('mouseleave', () => { hint.style.opacity = '0.25'; });
+  }
 
   window.addEventListener('resize', () => { sim.force('center', d3.forceCenter(innerWidth / 2, innerHeight / 2)); sim.alpha(0.3).restart(); });
 }
