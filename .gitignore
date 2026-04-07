@@ -8,6 +8,9 @@ dist/
 # Generated at build time — never commit
 public/graph.json
 
+# Local content templates (do not publish)
+content/templates/
+
 # Environment
 .env
 .env.local
