@@ -1,4 +1,4 @@
-# ◈ graph-folio
+# ◈ GraphFolio
 
 > A living knowledge graph rendered as a portfolio. Not a website about me — a website *that thinks* like me.
 
@@ -27,7 +27,7 @@ This site is that philosophy applied to a portfolio:
 | Search | [Fuse.js](https://fusejs.io) | Client-side fuzzy search, no server required |
 | Language | TypeScript | Throughout |
 | Frontmatter | gray-matter | YAML parsing at build time |
-| Fonts | JetBrains Mono | Monospace, because of course |
+| Fonts | JetBrains Mono | Monospace |
 
 ---
 
