@@ -86,21 +86,6 @@
   flex-shrink: 0;
 }
 
-.buffer-dots {
-  display: flex;
-  gap: 6px;
-}
-
-.buffer-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.buffer-dot.red    { background: #ff5f56; }
-.buffer-dot.yellow { background: #ffbd2e; }
-.buffer-dot.green  { background: #27c93f; }
-
 .buffer-title {
   flex: 1;
   font-family: var(--font-mono);
@@ -292,6 +277,190 @@
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-dim);
+}
+
+/* ============================
+   SITE HEADER
+   ============================ */
+
+#site-header {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 80;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.85;
+  transition: opacity 100ms ease;
+}
+#site-header:hover {
+  opacity: 1;
+}
+#site-header h1 {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  margin: 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+.site-subtitle {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+  margin: 2px 0 0 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ============================
+   USAGE HINT
+   ============================ */
+
+#usage-hint {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  padding: 10px 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  background: rgba(13, 13, 13, 0.75);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  z-index: 300;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.75;
+  transition: opacity 120ms ease;
+}
+#usage-hint:hover {
+  opacity: 1;
+}
+.hint-scroll {
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+#usage-hint kbd {
+  display: inline-block;
+  background: rgba(124, 106, 247, 0.15);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 1px;
+}
+
+/* ============================
+   RESPONSIVE
+   ============================ */
+
+@media (max-width: 600px) {
+  #site-header h1 {
+    font-size: 16px;
+  }
+  .site-subtitle {
+    font-size: 10px;
+  }
+  #usage-hint {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 14px;
+    font-size: 10px;
+    bottom: 12px;
+  }
+  .hint-scroll {
+    display: none;
+  }
+}
+
+/* ============================
+   COMMAND SHEET (vim-style)
+   ============================ */
+
+.cmd-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #111;
+  border-top: 1px solid var(--border);
+  padding: 12px 20px;
+  z-index: 150;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 120ms ease-out, transform 120ms ease-out;
+}
+.cmd-sheet.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.cmd-sheet-inner {
+  max-width: 480px;
+  margin: 0 auto;
+}
+.cmd-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text);
+}
+.cmd-prompt {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 16px;
+}
+.cmd-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text);
+  caret-color: var(--accent);
+}
+.cmd-input::placeholder {
+  color: var(--text-dim);
+  opacity: 0.5;
+}
+.cmd-hints {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.cmd-hints kbd {
+  display: inline-block;
+  background: rgba(124, 106, 247, 0.15);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 9px;
+  font-weight: 600;
+  margin-right: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmd-sheet {
+    transition: none;
+  }
 }
 
 /* SVG graph defaults */
