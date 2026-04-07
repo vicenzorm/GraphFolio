@@ -10,4 +10,4 @@ url: https://github.com/vicenzorm
 
 My code repositories, experiments, and open-source work.
 
-[[Graph Folio]]
+[[About]]
