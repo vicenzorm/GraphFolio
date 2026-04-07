@@ -14,44 +14,6 @@ backdrop.appendChild(panel);
 
 let currentOpen = false;
 let onCloseCallback: (() => void) | null = null;
-let cmdSheetVisible = false;
-
-// Command sheet
-const cmdSheet = document.createElement('div');
-cmdSheet.className = 'cmd-sheet';
-cmdSheet.innerHTML = `
-  <div class="cmd-sheet-inner">
-    <div class="cmd-line"><span class="cmd-prompt">:</span><input class="cmd-input" type="text" placeholder="comando..." autocomplete="off" /></div>
-    <div class="cmd-hints">
-      <span><kbd>q</kbd> fechar buffer</span>
-      <span><kbd>Esc</kbd> cancelar</span>
-    </div>
-  </div>
-`;
-
-function openCmdSheet() {
-  if (cmdSheetVisible) return;
-  cmdSheetVisible = true;
-  document.body.appendChild(cmdSheet);
-  requestAnimationFrame(() => cmdSheet.classList.add('visible'));
-  const input = cmdSheet.querySelector('.cmd-input') as HTMLInputElement;
-  input?.focus();
-  input?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === 'Escape') {
-      e.preventDefault();
-      closeCmdSheet();
-      if (e.key === 'Enter' && (input as HTMLInputElement).value.trim() === 'q') {
-        closeBuffer();
-      }
-    }
-  });
-}
-
-function closeCmdSheet() {
-  cmdSheetVisible = false;
-  cmdSheet.classList.remove('visible');
-  setTimeout(() => cmdSheet.remove(), 120);
-}
 
 function renderBody(body: string): string {
   // Render wikilinks as styled spans
@@ -70,7 +32,7 @@ function openBuffer(node: BufferNode) {
   header.setAttribute('class', 'buffer-header');
   header.innerHTML = `
     <span class="buffer-title">${node.title}</span>
-    <button class="buffer-close" aria-label="Close">:q</button>
+    <button class="buffer-close" aria-label="Close">Close</button>
   `;
 
   // Build body
@@ -93,15 +55,6 @@ function openBuffer(node: BufferNode) {
 
   header.querySelector('.buffer-close')!.addEventListener('click', close)
 
-  // Press ':' to open command sheet
-  const onCmdKey = (e: KeyboardEvent) => {
-    if (currentOpen && e.key === ':' && !cmdSheetVisible) {
-      e.preventDefault()
-      openCmdSheet()
-    }
-  }
-  document.addEventListener('keydown', onCmdKey);
-
   // Show
   document.body.appendChild(backdrop);
   currentOpen = true;
@@ -115,7 +68,6 @@ function openBuffer(node: BufferNode) {
 function closeBuffer() {
   if (!currentOpen) return;
   currentOpen = false;
-  closeCmdSheet();
   panel.classList.remove('visible');
   setTimeout(() => {
     backdrop.remove();
