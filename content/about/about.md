@@ -7,16 +7,15 @@ description: Start here — who I am and what I do.
 ---
 # Hi, I'm Vicenzo Masera
 
-Software Engineer based in Brazil. I build CLI tools, TUIs, and systems that
-follow the Unix philosophy: do one thing well.
+Software Engineering student and iOS developer. I build mobile experiences and desktop tools that blend modern swift with a deep appreciation for the command line.
 
-This site is a living knowledge graph. Every node is a project, technology,
-or concept that defines how I work. Click around.
+This space is my personal laboratory. I believe in software that feels like a 
+tangible object—minimalist, intentional, and built to last.
 
 ## What I do
-- Systems programming and CLI tooling
-- Graph-based interfaces and data visualization
-- Terminal-first workflows (Neovim, tmux, zsh)
+- iOS Development (Swift, SpriteKit, CryptoKit)
+- Open source contributor & maintaining Homebrew formulae
+- Terminal-first workflows
 
 ## Contact
 Find me on [[GitHub]] and [[LinkedIn]].
