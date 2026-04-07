@@ -16,7 +16,11 @@ function normalizeId(raw) {
 }
 
 async function buildGraph() {
-  const files = await fg('**/*.md', { cwd: CONTENT_DIR, absolute: true });
+  const files = await fg('**/*.md', {
+    cwd: CONTENT_DIR,
+    absolute: true,
+    ignore: ['templates/**', '**/_TEMPLATE-*.md', '**/*TEMPLATE*.md'],
+  });
 
   if (files.length === 0) {
     console.warn('No Markdown files found in content/');
@@ -28,6 +32,7 @@ async function buildGraph() {
 
   const nodes = [];
   const byId = new Map();
+  const excludedConceptIds = new Set();
   const wikilinkRe = /\[\[([^\]]+)\]\]/g;
 
   for (const file of files) {
@@ -37,11 +42,29 @@ async function buildGraph() {
 
     const id = normalizeId(parsed.data.slug ?? filenameId);
     const title = parsed.data.title ?? filenameId;
-    const type = parsed.data.type ?? 'concept';
+
+    const rawType = String(parsed.data.type ?? 'concept').trim().toLowerCase();
+    const TYPE_ALIASES = {
+      skill: 'technology',
+      language: 'technology',
+      framework: 'technology',
+      tool: 'technology',
+      database: 'technology',
+      certification: 'experience',
+      certifications: 'experience',
+    };
+    const type = TYPE_ALIASES[rawType] ?? rawType;
+
+    if (type === 'concept') {
+      excludedConceptIds.add(id);
+      continue;
+    }
+
     const status = parsed.data.status ?? 'active';
     const year = parsed.data.year;
     const tags = Array.isArray(parsed.data.tags) ? parsed.data.tags : [];
     const description = parsed.data.description ?? '';
+    const url = typeof parsed.data.url === 'string' ? parsed.data.url.trim() : '';
     const body = parsed.content.trim();
 
     // Extract wikilinks from body
@@ -55,7 +78,7 @@ async function buildGraph() {
     // Tags are metadata only — edges come solely from actual wikilinks
 
     const node = {
-      id, title, type, status, year, tags, description, body,
+      id, title, type, status, year, tags, description, url, body,
       _linkTargets: Array.from(linkTargets),
     };
 
@@ -71,6 +94,7 @@ async function buildGraph() {
     const linkTargets = node._linkTargets || [];
     for (const targetId of linkTargets) {
       if (!byId.has(targetId)) {
+        if (excludedConceptIds.has(targetId)) continue;
         warnings.push(`Unresolved wikilink in '${node.id}': '${targetId}'`);
         continue;
       }
