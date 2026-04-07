@@ -29,8 +29,8 @@ interface GraphData {
 }
 
 // Constants
-const NODE_COLORS: Record<string, string> = { project: '#7c6af7', skill: '#4fc3f7', language: '#4fc3f7', concept: '#6abf69' };
-const NODE_RADII: Record<string, number> = { project: 18, skill: 10, language: 10, concept: 7 };
+const NODE_COLORS: Record<string, string> = { project: '#0087BD', technology: '#009F6B', concept: '#FFD700', social: '#FF1493', experience: '#C40233' };
+const NODE_RADII: Record<string, number> = { project: 18, technology: 10, concept: 7, social: 9, experience: 12 };
 
 // State
 let flyToFn: ((nodeId: string) => void) | null = null;
@@ -40,6 +40,7 @@ let searchVisible = false;
 let fuseIdx: Fuse<GraphNode> | null = null;
 let sResults: GraphNode[] = [];
 let sIdx = 0;
+let searchKeyHandler: ((e: KeyboardEvent) => void) | null = null;
 
 // ====== NODE BUFFER ======
 
@@ -64,7 +65,7 @@ function openBuffer(node: GraphNode): void {
     <div class="buffer-header">
       <div class="buffer-dots"><span class="buffer-dot red"></span><span class="buffer-dot yellow"></span><span class="buffer-dot green"></span></div>
       <span class="buffer-title">${node.title}</span>
-      <button class="buffer-close">:q</button>
+      <button class="buffer-close" aria-label="Close">Close</button>
     </div>
     <div class="buffer-body">${rendered.replace(/\[\[([^\]]+)\]\]/g, '<span class="wikilink">$1</span>')}</div>
   `;
@@ -81,27 +82,67 @@ function openBuffer(node: GraphNode): void {
 
 function closeSearch(): void {
   searchVisible = false; sResults = [];
+  if (searchKeyHandler) {
+    document.removeEventListener('keydown', searchKeyHandler);
+    searchKeyHandler = null;
+  }
   const el = document.querySelector('.omni-backdrop');
   if (el) { el.querySelector('div')?.classList.remove('visible'); setTimeout(() => el.remove(), 130); }
+}
+
+function updateActiveResult(bd: HTMLElement, shouldScroll = true): void {
+  const items = bd.querySelectorAll('.omni-result');
+  items.forEach((el, idx) => {
+    const isActive = idx === sIdx;
+    el.classList.toggle('active', isActive);
+    el.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    if (isActive && shouldScroll) {
+      (el as HTMLElement).scrollIntoView({ block: 'nearest' });
+    }
+  });
+}
+
+function moveSelection(delta: number, bd: HTMLElement): void {
+  if (sResults.length === 0) return;
+  sIdx = (sIdx + delta + sResults.length) % sResults.length;
+  updateActiveResult(bd, true);
 }
 
 function renderResults(bd: HTMLElement): void {
   const rl = bd.querySelector('.omni-results');
   if (!rl) return;
-  if (sResults.length === 0) { rl.innerHTML = '<div class="omni-empty">No matches found.</div>'; return; }
+  if (sResults.length === 0) {
+    rl.innerHTML = '<div class="omni-empty">No matches found.</div>';
+    return;
+  }
+
   rl.innerHTML = sResults.map((n, i) => {
-    const col = NODE_COLORS[n.type] || '#888';
-    return `<div class="omni-result${i === sIdx ? ' active' : ''}" data-i="${i}">
+    const col = NODE_COLORS[n.type] || '#696969';
+    return `<div class="omni-result${i === sIdx ? ' active' : ''}" role="option" aria-selected="${i === sIdx ? 'true' : 'false'}" data-i="${i}">
       <span class="omni-badge" style="background:${col}22;color:${col};border:1px solid ${col}55">${n.type.toUpperCase()}</span>
       <span class="omni-result-title">${n.title}</span>
       ${n.description ? `<span class="omni-result-desc"> — ${n.description}</span>` : ''}</div>`;
   }).join('');
+
   rl.querySelectorAll('.omni-result').forEach(el => {
+    el.addEventListener('mousemove', () => {
+      const idx = parseInt((el as HTMLElement).dataset.i || '-1');
+      if (Number.isNaN(idx) || idx === sIdx) return;
+      sIdx = idx;
+      updateActiveResult(bd, false);
+    });
+
     el.addEventListener('click', () => {
-      const idx = parseInt((el as HTMLElement).dataset.i || '0'); closeSearch();
-      if (flyToFn) flyToFn(sResults[idx].id);
+      const idx = parseInt((el as HTMLElement).dataset.i || '0');
+      const targetId = sResults[idx]?.id;
+      if (!targetId) return;
+      closeSearch();
+      closeBuffer();
+      if (flyToFn) flyToFn(targetId);
     });
   });
+
+  updateActiveResult(bd, true);
 }
 
 function openOmniSearch(nodes: GraphNode[]): void {
@@ -116,28 +157,57 @@ function openOmniSearch(nodes: GraphNode[]): void {
   bd.className = 'omni-backdrop';
   bd.innerHTML = `
     <div>
-      <input class="omni-input" type="text" placeholder="Search nodes..." autocomplete="off" />
-      <div class="omni-results"></div>
-      <div class="omni-footer"><span>Enter: open</span><span>Up/Down or Ctrl+N/P: navigate</span><span>Esc: close</span></div>
+      <input class="omni-input" type="text" placeholder="Type to search nodes..." autocomplete="off" />
+      <div class="omni-results" role="listbox"></div>
+      <div class="omni-footer"><span>Enter: open</span><span>↑↓ / Ctrl+N,P: navigate</span><span>Esc: close</span></div>
     </div>`;
-  bd.querySelector('.omni-input')?.addEventListener('input', function() {
+  const inputEl = bd.querySelector('.omni-input') as HTMLInputElement | null;
+  inputEl?.addEventListener('input', function() {
     const q = (this as HTMLInputElement).value.trim();
     if (!q || !fuseIdx) { sResults = nodes.slice(0, 15); }
     else { sResults = fuseIdx.search(q).slice(0, 15).map(r => r.item); }
     sIdx = 0; renderResults(bd);
   });
   bd.addEventListener('click', (e) => { if (e.target === bd) closeSearch(); });
-  const onSearchKey = (e: KeyboardEvent) => {
+  searchKeyHandler = (e: KeyboardEvent) => {
     if (!searchVisible) return;
-    if (e.key === 'Escape') { e.preventDefault(); closeSearch(); }
-    else if (e.key === 'ArrowDown' || (e.ctrlKey && e.key.toLowerCase() === 'n' && !e.metaKey)) { e.preventDefault(); sIdx = (sIdx + 1) % Math.max(1, sResults.length); renderResults(bd); }
-    else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key.toLowerCase() === 'p' && !e.metaKey)) { e.preventDefault(); sIdx = (sIdx - 1 + Math.max(1, sResults.length)) % Math.max(1, sResults.length); renderResults(bd); }
-    else if (e.key === 'Enter') { e.preventDefault(); if (sResults[sIdx] && flyToFn) { closeSearch(); flyToFn(sResults[sIdx].id); } }
+    const key = e.key.toLowerCase();
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeSearch();
+      return;
+    }
+
+    if (e.key === 'ArrowDown' || (e.ctrlKey && key === 'n' && !e.metaKey) || (e.ctrlKey && key === 'j' && !e.metaKey)) {
+      e.preventDefault();
+      moveSelection(1, bd);
+      return;
+    }
+
+    if (e.key === 'ArrowUp' || (e.ctrlKey && key === 'p' && !e.metaKey) || (e.ctrlKey && key === 'k' && !e.metaKey)) {
+      e.preventDefault();
+      moveSelection(-1, bd);
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (sResults[sIdx] && flyToFn) {
+        const targetId = sResults[sIdx].id;
+        closeSearch();
+        closeBuffer();
+        flyToFn(targetId);
+      }
+    }
   };
-  document.addEventListener('keydown', onSearchKey);
+  document.addEventListener('keydown', searchKeyHandler);
   document.body.appendChild(bd);
-  requestAnimationFrame(() => bd.querySelector('div')?.classList.add('visible'));
-  renderResults(bd);
+  requestAnimationFrame(() => {
+    bd.querySelector('div')?.classList.add('visible');
+    inputEl?.focus();
+    renderResults(bd);
+  });
 }
 
 // ====== GLOBAL KEYS ======
@@ -174,14 +244,14 @@ function mountGraph(container: HTMLElement, data: GraphData): void {
   svg.call(zoom);
 
   const edgesSel = g.append('g').attr('class', 'edges').selectAll<SVGLineElement, GraphEdge>('line').data(data.edges).join('line')
-    .attr('stroke', '#2a2a2a').attr('stroke-opacity', 0.4).attr('stroke-width', 1);
+    .attr('stroke', '#696969').attr('stroke-opacity', 0.4).attr('stroke-width', 1);
 
   const nodeSel = g.append('g').attr('class', 'nodes').selectAll<SVGGElement, GraphNode>('g').data(data.nodes).join('g').attr('cursor', 'pointer');
   nodeSel.append('circle').attr('r', (d: GraphNode) => NODE_RADII[d.type] || 10)
-    .attr('fill', (d: GraphNode) => NODE_COLORS[d.type] || '#6abf69')
-    .attr('stroke', 'rgba(255,255,255,0.1)').attr('stroke-width', 1);
+    .attr('fill', (d: GraphNode) => NODE_COLORS[d.type] || '#009F6B')
+    .attr('stroke', 'rgba(198,198,196,0.2)').attr('stroke-width', 1);
   nodeSel.append('text').text((d: GraphNode) => d.title).attr('text-anchor', 'middle')
-    .attr('dy', (d: GraphNode) => (NODE_RADII[d.type] || 10) + 14).attr('fill', '#e0e0e0')
+    .attr('dy', (d: GraphNode) => (NODE_RADII[d.type] || 10) + 14).attr('fill', '#C6C6C4')
     .attr('font-size', (d: GraphNode) => { const r = NODE_RADII[d.type] || 10; return r >= 18 ? '11px' : r >= 10 ? '9px' : '7px'; })
     .attr('font-family', "'JetBrains Mono', monospace").attr('pointer-events', 'none')
     .style('text-shadow', '0 0 6px rgba(0,0,0,0.9)');
@@ -203,12 +273,12 @@ function mountGraph(container: HTMLElement, data: GraphData): void {
     nodeSel.transition().duration(100).attr('opacity', (n: GraphNode) => (n.id === d.id || connected.has(n.id)) ? 1 : 0.15);
     edgesSel.transition().duration(100)
       .attr('stroke-opacity', (e: GraphEdge) => { const s = typeof e.source === 'string' ? e.source : (e.source as GraphNode).id; const t = typeof e.target === 'string' ? e.target : (e.target as GraphNode).id; return (s === d.id || t === d.id) ? 1 : 0.06; })
-      .attr('stroke', (e: GraphEdge) => { const s = typeof e.source === 'string' ? e.source : (e.source as GraphNode).id; const t = typeof e.target === 'string' ? e.target : (e.target as GraphNode).id; return (s === d.id || t === d.id) ? (NODE_COLORS[d.type] || '#7c6af7') : '#2a2a2a'; });
+      .attr('stroke', (e: GraphEdge) => { const s = typeof e.source === 'string' ? e.source : (e.source as GraphNode).id; const t = typeof e.target === 'string' ? e.target : (e.target as GraphNode).id; return (s === d.id || t === d.id) ? (NODE_COLORS[d.type] || '#0087BD') : '#696969'; });
   })
   .on('mousemove', function (ev: MouseEvent) { tooltip.style.left = (ev.pageX + 16) + 'px'; tooltip.style.top = (ev.pageY - 12) + 'px'; })
   .on('mouseout', function () {
     d3.select(this).select('circle').transition().duration(200).attr('transform', 'scale(1)');
-    tooltip.classList.remove('visible'); nodeSel.transition().duration(200).attr('opacity', 1); edgesSel.transition().duration(200).attr('stroke-opacity', 0.4).attr('stroke', '#2a2a2a');
+    tooltip.classList.remove('visible'); nodeSel.transition().duration(200).attr('opacity', 1); edgesSel.transition().duration(200).attr('stroke-opacity', 0.4).attr('stroke', '#696969');
   })
   .on('click', function (ev: MouseEvent, d: GraphNode) { ev.stopPropagation(); openBuffer(d); });
 
@@ -242,13 +312,6 @@ function mountGraph(container: HTMLElement, data: GraphData): void {
     sim.alpha(0.3).restart();
   });
 
-  // Auto-hide usage hint after 5s
-  const hint = document.getElementById('usage-hint');
-  if (hint) {
-    setTimeout(() => { hint.style.opacity = '0.25'; }, 5000);
-    hint.addEventListener('mouseenter', () => { hint.style.opacity = '1'; });
-    hint.addEventListener('mouseleave', () => { hint.style.opacity = '0.25'; });
-  }
 }
 
 // ====== BOOT ======
@@ -269,7 +332,7 @@ function mountGraph(container: HTMLElement, data: GraphData): void {
     } catch (e: unknown) {
       console.error('Graph load error:', e);
       const errMsg = e instanceof Error ? e.message : String(e);
-      container.innerHTML = `<p style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#ff5f56;font-family:var(--font-mono)">Failed: ${errMsg}</p>`;
+      container.innerHTML = `<p style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#FF2400;font-family:var(--font-mono)">Failed: ${errMsg}</p>`;
     }
   });
 })();
