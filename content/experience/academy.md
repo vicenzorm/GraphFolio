@@ -21,7 +21,6 @@ description: "Challenge-Based Learning environment focusing on end-to-end iOS ap
 - [[Shiro]]
 - [[Zenith]]
 - [[Glyptis]]
-- [[SafeCons]]
 
 ## Skills demonstrated
 - Software Architecture (MVVM, MVC, MV, ECS)

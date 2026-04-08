@@ -8,7 +8,7 @@ import '../styles/components.css';
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Vicenzo — Graph Portfolio</title>
+    <title>Vicenzo Másera — Graph Portfolio</title>
     <script type="importmap">
     {
       "imports": {
@@ -23,30 +23,35 @@ import '../styles/components.css';
     <div id="graph-container"></div>
 
     <header id="site-header">
-      <h1>Vicenzo Masera</h1>
-      <p class="site-subtitle">Software Engineer</p>
+      <h1>Vicenzo Másera</h1>
+      <p id="site-subtitle" class="site-subtitle">Software Engineer</p>
       <p id="onboarding-hint">click a node to explore  ·  Cmd+K to search</p>
     </header>
 
     <div id="hud-left">
       <div id="color-cheatsheet" aria-label="Node color legend">
-        <p class="legend-title">HOW TO NAVIGATE</p>
+        <p id="legend-title" class="legend-title">HOW TO NAVIGATE</p>
         <ul>
-          <li><span class="legend-dot legend-project"></span><span>Project</span></li>
-          <li><span class="legend-dot legend-technology"></span><span>Technology</span></li>
-          <li><span class="legend-dot legend-social"></span><span>Social</span><span class="legend-annotation">← external links</span></li>
-          <li><span class="legend-dot legend-about"></span><span>About</span><span class="legend-annotation">← start here</span></li>
-          <li><span class="legend-dot legend-experience"></span><span>Experiences</span></li>
+          <li><span class="legend-dot legend-project"></span><span id="legend-project">Project</span></li>
+          <li><span class="legend-dot legend-featured"></span><span id="legend-featured">Featured</span><span id="legend-featured-note" class="legend-annotation">← highlighted work</span></li>
+          <li><span class="legend-dot legend-technology"></span><span id="legend-technology">Technology</span></li>
+          <li><span class="legend-dot legend-social"></span><span id="legend-social">Social</span><span id="legend-social-note" class="legend-annotation">← external links</span></li>
+          <li><span class="legend-dot legend-about"></span><span id="legend-about">About</span><span id="legend-about-note" class="legend-annotation">← start here</span></li>
+          <li><span class="legend-dot legend-experience"></span><span id="legend-experience">Experiences</span></li>
         </ul>
       </div>
     </div>
 
-    <button id="search-trigger" aria-label="Search (Cmd+K)" title="Search (Cmd+K)">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
-        <path d="M16.65 16.65L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-      </svg>
-    </button>
+    <div id="hud-right">
+      <button id="lang-en" class="lang-btn" aria-label="Switch to English" title="English">🇺🇸</button>
+      <button id="lang-pt" class="lang-btn" aria-label="Mudar para português" title="Português">🇧🇷</button>
+      <button id="search-trigger" aria-label="Search (Cmd+K)" title="Search (Cmd+K)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+          <path d="M16.65 16.65L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
   </body>
 </html>
 
@@ -55,9 +60,55 @@ import * as d3 from 'd3';
 import Fuse from 'fuse.js';
 import { parse as markedParse } from 'marked';
 
-const NODE_COLORS = { project: '#0087BD', technology: '#009F6B', concept: '#FFD700', social: '#FF1493', experience: '#C40233', about: '#f5f5f0' };
-const NODE_RADII = { project: 18, technology: 10, concept: 7, social: 9, experience: 12, about: 18 };
+const NODE_COLORS = { project: '#0087BD', featured: '#FF6B00', technology: '#009F6B', concept: '#FFD700', social: '#FF1493', experience: '#C40233', about: '#f5f5f0' };
+const NODE_RADII = { project: 18, featured: 20, technology: 10, concept: 7, social: 9, experience: 12, about: 18 };
+const LANG_KEY = 'graphfolio-lang';
+const UI_STRINGS = {
+  en: {
+    subtitle: 'Software Engineer',
+    hint: 'click a node to explore  ·  Cmd+K to search',
+    legendTitle: 'HOW TO NAVIGATE',
+    project: 'Project',
+    featured: 'Featured',
+    featuredNote: '← highlighted work',
+    technology: 'Technology',
+    social: 'Social',
+    socialNote: '← external links',
+    about: 'About',
+    aboutNote: '← start here',
+    experience: 'Experiences',
+    searchTitle: 'Search (Cmd+K)',
+    searchPlaceholder: 'Type to search nodes...',
+    noMatches: 'No matches found.',
+    footerEnter: 'Enter: open',
+    footerNavigate: '↑↓ / Ctrl+N,P: navigate',
+    footerEsc: 'Esc: close',
+  },
+  pt: {
+    subtitle: 'Engenheiro de Software',
+    hint: 'clique em um nodo para explorar  ·  Cmd+K para buscar',
+    legendTitle: 'COMO NAVEGAR',
+    project: 'Projeto',
+    featured: 'Destaque',
+    featuredNote: '← trabalho em destaque',
+    technology: 'Tecnologia',
+    social: 'Social',
+    socialNote: '← links externos',
+    about: 'Sobre',
+    aboutNote: '← comece por aqui',
+    experience: 'Experiências',
+    searchTitle: 'Buscar (Cmd+K)',
+    searchPlaceholder: 'Digite para buscar nodos...',
+    noMatches: 'Nenhum resultado encontrado.',
+    footerEnter: 'Enter: abrir',
+    footerNavigate: '↑↓ / Ctrl+N,P: navegar',
+    footerEsc: 'Esc: fechar',
+  }
+};
+let currentLang = localStorage.getItem(LANG_KEY) === 'pt' ? 'pt' : 'en';
 let flyToFn = null, allNodes = [], bufferVisible = false, searchVisible = false, fuseIdx = null, sResults = [], sIdx = 0, searchKeyHandler = null;
+let activeNodeSelection = null;
+let currentBufferNodeId = null;
 
 function normalizeNodeKey(value) {
   return (value || '')
@@ -87,17 +138,112 @@ function toLabelType(type) {
   return type.charAt(0).toUpperCase() + type.slice(1);
 }
 
+function t(key) {
+  return UI_STRINGS[currentLang][key] || UI_STRINGS.en[key] || '';
+}
+
+function translateMarkdownSections(body) {
+  if (currentLang !== 'pt') return body;
+  const pairs = [
+    ['## What problem did this solve?', '## Qual problema isso resolveu?'],
+    ['## What was my role?', '## Qual foi meu papel?'],
+    ['## What I specifically built', '## O que eu construí especificamente'],
+    ['## Business impact (most important)', '## Impacto de negócio (principal)'],
+    ['## Business impact', '## Impacto de negócio'],
+    ['## How I delivered', '## Como eu entreguei'],
+    ['## Tech used (short list)', '## Tecnologias usadas (resumo)'],
+    ['## Tech used', '## Tecnologias usadas'],
+    ['## Links', '## Links'],
+    ['## Why this is featured', '## Por que este projeto está em destaque'],
+    ['## Why this project is highlighted', '## Por que este projeto está em destaque'],
+    ['## Highlight dimensions', '## Dimensões de destaque'],
+    ['## Featured project', '## Projeto em destaque'],
+    ['## Why I use it', '## Por que eu uso'],
+    ['## Proven outcomes', '## Resultados alcançados'],
+    ['## Level of proficiency', '## Nível de proficiência'],
+    ['## Notes', '## Notas'],
+    ['## Context', '## Contexto'],
+    ['## Responsibilities', '## Responsabilidades'],
+    ['## Projects delivered', '## Projetos entregues'],
+    ['## Skills demonstrated', '## Competências demonstradas'],
+    ['## Snapshot', '## Resumo'],
+    ['## Featured work', '## Trabalhos em destaque'],
+    ['## My experiences', '## Minhas experiências'],
+    ['## Contact', '## Contato']
+  ];
+
+  let translated = body;
+  for (const [en, pt] of pairs) {
+    translated = translated.replaceAll(en, pt);
+  }
+  return translated;
+}
+
+function applyLanguageUI() {
+  document.documentElement.lang = currentLang === 'pt' ? 'pt-BR' : 'en';
+  const ui = UI_STRINGS[currentLang];
+
+  const map = [
+    ['site-subtitle', ui.subtitle],
+    ['onboarding-hint', ui.hint],
+    ['legend-title', ui.legendTitle],
+    ['legend-project', ui.project],
+    ['legend-featured', ui.featured],
+    ['legend-featured-note', ui.featuredNote],
+    ['legend-technology', ui.technology],
+    ['legend-social', ui.social],
+    ['legend-social-note', ui.socialNote],
+    ['legend-about', ui.about],
+    ['legend-about-note', ui.aboutNote],
+    ['legend-experience', ui.experience],
+  ];
+
+  map.forEach(([id, text]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  });
+
+  const searchTrigger = document.getElementById('search-trigger');
+  if (searchTrigger) {
+    searchTrigger.setAttribute('title', ui.searchTitle);
+    searchTrigger.setAttribute('aria-label', ui.searchTitle);
+  }
+
+  const btnEn = document.getElementById('lang-en');
+  const btnPt = document.getElementById('lang-pt');
+  btnEn?.classList.toggle('active', currentLang === 'en');
+  btnPt?.classList.toggle('active', currentLang === 'pt');
+
+  if (activeNodeSelection) {
+    activeNodeSelection.select('text').text(d => d.type === 'social' ? (d.title + ' ↗') : d.title);
+  }
+
+  if (bufferVisible && currentBufferNodeId) {
+    const node = allNodes.find(n => n.id === currentBufferNodeId);
+    if (node) openBuffer(node);
+  }
+}
+
+function setLanguage(lang) {
+  if (lang !== 'en' && lang !== 'pt') return;
+  currentLang = lang;
+  localStorage.setItem(LANG_KEY, lang);
+  applyLanguageUI();
+}
+
 function closeBuffer() {
-  if (!bufferVisible) return; bufferVisible = false;
+  if (!bufferVisible) return; bufferVisible = false; currentBufferNodeId = null;
   const bd = document.querySelector('.node-buffer-backdrop');
   if (bd) { const p = bd.querySelector('div'); if(p) p.classList.remove('visible'); setTimeout(() => bd.remove(), 130); }
 }
 
 function openBuffer(node) {
   closeBuffer();
+  currentBufferNodeId = node.id;
   const bd = document.createElement('div'); bd.className = 'node-buffer-backdrop';
   const pnl = document.createElement('div');
-  const rendered = marked(node.body);
+  const localizedBody = translateMarkdownSections(node.body);
+  const rendered = marked(localizedBody);
   pnl.innerHTML = '<div class="buffer-header"><span class="buffer-title">' + node.title + '</span><button class="buffer-close" aria-label="Close">Close</button></div><div class="buffer-body">' + rendered.replace(/\[\[([^\]]+)\]\]/g, '<span class="wikilink">$1</span>') + '</div>';
   bd.appendChild(pnl);
   const close = () => closeBuffer();
@@ -163,7 +309,7 @@ function renderResults(bd) {
   const rl = bd.querySelector('.omni-results');
   if (!rl) return;
   if (sResults.length === 0) {
-    rl.innerHTML = '<div class="omni-empty">No matches found.</div>';
+    rl.innerHTML = '<div class="omni-empty">' + t('noMatches') + '</div>';
     return;
   }
 
@@ -199,7 +345,7 @@ function openOmniSearch(nodes) {
   sResults = nodes.slice(0, 15);
   const bd = document.createElement('div');
   bd.className = 'omni-backdrop';
-  bd.innerHTML = '<div><input class="omni-input" type="text" placeholder="Type to search nodes..." autocomplete="off" /><div class="omni-results" role="listbox"></div><div class="omni-footer"><span>Enter: open</span><span>↑↓ / Ctrl+N,P: navigate</span><span>Esc: close</span></div></div>';
+  bd.innerHTML = '<div><input class="omni-input" type="text" placeholder="' + t('searchPlaceholder') + '" autocomplete="off" /><div class="omni-results" role="listbox"></div><div class="omni-footer"><span>' + t('footerEnter') + '</span><span>' + t('footerNavigate') + '</span><span>' + t('footerEsc') + '</span></div></div>';
   const inputEl = bd.querySelector('.omni-input');
   inputEl.addEventListener('input', function () {
     const q = this.value.trim();
@@ -358,6 +504,7 @@ function mountGraph(container, data) {
   const edgesSel = g.append('g').attr('class', 'edges').selectAll('line').data(data.edges).join('line').attr('stroke', '#696969').attr('stroke-opacity', 0.4).attr('stroke-width', 1);
 
   const nodeSel = g.append('g').attr('class', 'nodes').selectAll('g').data(data.nodes).join('g').attr('cursor', 'pointer');
+  activeNodeSelection = nodeSel;
   nodeSel.append('circle').attr('class', 'node-core').attr('r', d => NODE_RADII[d.type] || 10).attr('fill', d => NODE_COLORS[d.type] || '#009F6B').attr('stroke', 'rgba(198,198,196,0.2)').attr('stroke-width', 1).attr('filter', d => d.type === 'social' ? 'url(#social-glow)' : null);
   nodeSel.filter(d => d.type === 'about').append('circle').attr('class', 'about-ring').attr('r', d => (NODE_RADII[d.type] || 10) + 6).attr('fill', 'none').attr('stroke', '#f5f5f0').attr('stroke-opacity', 0.3).attr('stroke-width', 1);
   nodeSel.append('text').text(d => d.type === 'social' ? (d.title + ' ↗') : d.title).attr('text-anchor', 'middle').attr('dy', d => (NODE_RADII[d.type] || 10) + (d.type === 'about' ? 16 : 14)).attr('fill', '#C6C6C4').attr('font-size', d => {
@@ -478,6 +625,12 @@ function mountGraph(container, data) {
       });
     }
 
+    const langEnBtn = document.getElementById('lang-en');
+    const langPtBtn = document.getElementById('lang-pt');
+    langEnBtn?.addEventListener('click', () => setLanguage('en'));
+    langPtBtn?.addEventListener('click', () => setLanguage('pt'));
+
+    applyLanguageUI();
     console.log('Graph loaded: ' + data.nodes.length + ' nodes, ' + data.edges.length + ' edges');
   } catch (e) {
     console.error('Graph load:', e);

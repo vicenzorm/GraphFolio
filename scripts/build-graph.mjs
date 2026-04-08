@@ -32,7 +32,6 @@ async function buildGraph() {
 
   const nodes = [];
   const byId = new Map();
-  const excludedConceptIds = new Set();
   const wikilinkRe = /\[\[([^\]]+)\]\]/g;
 
   for (const file of files) {
@@ -55,10 +54,6 @@ async function buildGraph() {
     };
     const type = TYPE_ALIASES[rawType] ?? rawType;
 
-    if (type === 'concept') {
-      excludedConceptIds.add(id);
-      continue;
-    }
     const year = parsed.data.year;
     const description = parsed.data.description ?? '';
     const url = typeof parsed.data.url === 'string' ? parsed.data.url.trim() : '';
@@ -89,7 +84,6 @@ async function buildGraph() {
     const linkTargets = node._linkTargets || [];
     for (const targetId of linkTargets) {
       if (!byId.has(targetId)) {
-        if (excludedConceptIds.has(targetId)) continue;
         warnings.push(`Unresolved wikilink in '${node.id}': '${targetId}'`);
         continue;
       }

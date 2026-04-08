@@ -3,20 +3,27 @@ title: About
 type: about
 description: Start here — who I am and what I do.
 ---
-# Hi, I'm Vicenzo Masera
+# Hi, I'm Vicenzo Másera
 
-Software Engineering student and iOS developer. I build mobile experiences and desktop tools that blend modern swift with a deep appreciation for the command line.
+Software Engineering student and iOS developer focused on native Apple experiences.
 
-This space is my personal laboratory. I believe in software that feels like a 
-tangible object—minimalist, intentional, and built to last.
+## Snapshot
+- Current role/level: iOS Developer
+- Core focus: Swift, SwiftUI, architecture, performance
+- Domain strengths: Game Dev, Privacy-first apps
+- Biggest differentiator: Native-first solutions with clean architecture
 
 ## What I do
 - iOS Development
-- Open source contributor & maintaining Homebrew formulae
+- Open source contributor & Homebrew formula maintainer
 - Terminal-first workflows
+
 
 ## My experiences
 - [[Apple Developer Academy]] (2025-2026)
 
 ## Contact
-Find me on [[GitHub]] and [[LinkedIn]].
+- LinkedIn: [[LinkedIn]]
+- GitHub: [[GitHub]]
+- Email: vicenzorm@protonmail.com
+- CV Repository: https://github.com/vicenzorm/Resumes

@@ -1,39 +1,47 @@
 ---
 title: "Shiro"
 type: project
-description: "A retro-inspired arcade climbing game built natively for iOS, simulating a classic portable console experience."
+description: "Retro-inspired iOS arcade game with native rendering and tactile feedback."
 ---
 # Shiro
 
+## App Store (priority)
+- https://apps.apple.com/us/app/shiro/id6752502968
+
 ## What problem did this solve?
-Modern mobile games often lack the tactile and nostalgic feel of classic arcade experiences. Shiro bridges this gap by delivering a fast-paced climbing game wrapped in a custom, fully functional virtual "GameBoy-style" console interface. It serves as a proof of concept for building scalable, high-performance 2D games purely using Apple's native frameworks, without relying on heavy third-party engines like Unity.
+Shiro recreates the feel of classic portable arcade games with modern iOS performance and native integrations.
 
 ## What was my role?
 - Role title: iOS/Game Developer
 - Team size: 5
-- Scope owned: End-to-end development, from SpriteKit physics engine tuning and GameplayKit state machines to Game Center integration and custom SwiftUI overlays.
+- Scope owned: SpriteKit gameplay systems, architecture, Game Center integration, and SwiftUI overlays
+
+## What I specifically built
+- Implemented GameplayKit state-machine flows for player behavior
+- Optimized SpriteKit scenes to keep stable frame pacing
+- Integrated GameKit leaderboards and authentication flow
+- Built tactile/audio feedback systems for stronger game feel
 
 ## Business impact (most important)
-- Engagement Metric: Integrated GameKit Leaderboards natively to drive player retention, repeatability, and a competitive core loop.
-- Performance Metric: Maintained consistent 60 FPS rendering by optimizing SpriteKit nodes and leveraging efficient collision bitmasks for elements like obstacles and projectiles.
-- Architecture Quality: Implemented a robust State Machine architecture (`GKStateMachine`) for complex player mechanics (Idle, Dash, Movement), completely decoupling movement logic from the main game loop and drastically reducing technical debt.
+- Engagement: Native leaderboard loop to increase replay value
+- Performance: Stable rendering under action-heavy scenes
+- Code quality: Modular game structure for easier extension
 
 ## How I delivered
-- Key decisions: Decided to use SwiftUI for the overlay/console interface and HUD, seamlessly bridging it with a SpriteKit scene (`SKScene`) for the rendering engine. Built custom haptics and a centralized AudioManager to enhance the tactile "retro console" immersion.
-- Trade-offs: Opted for SpriteKit over cross-platform engines. While this limits the game to the Apple ecosystem, it guaranteed zero-overhead access to native APIs like GameCenter, CoreHaptics, and SwiftUI, resulting in a much lighter binary and superior battery efficiency.
-- Stakeholder communication: Adopted a highly modular structure (separating Nodes, States, and ViewModels), ensuring the codebase remains clean and extensible for future content updates or new game modes.
+- Key decisions: Combined SpriteKit runtime with SwiftUI shell and HUD
+- Trade-offs: Chose native Apple stack over cross-platform engines for tighter integration
+- Delivery model: Modular architecture across states, nodes, and UI layers
 
-## Tech used (short list)
-- [[SpriteKit]] (Physics engine & 2D Rendering)
-- [[GameplayKit]] (State Machines for character behaviors)
-- [[SwiftUI]] 
-- [[GameKit]] (Leaderboards & Authentication)
-- [[CoreHaptics]] (Tactile feedback)
+## Tech used
+- [[SpriteKit]]
+- [[GameplayKit]]
+- [[SwiftUI]]
+- [[GameKit]]
+- [[CoreHaptics]]
 
 ## Links
-- https://apps.apple.com/us/app/shiro/id6752502968
-- https://github.com/vicenzorm/SaguBoy#
-- https://www.linkedin.com/in/bernardofens/
-- https://www.linkedin.com/in/pedro-kosciuk-lima-a29855207/
-- https://www.linkedin.com/in/jeanpierrerodrigues/
-- https://www.linkedin.com/in/enzotonatto/
+- Repository: https://github.com/vicenzorm/SaguBoy#
+- Team: https://www.linkedin.com/in/bernardofens/
+- Team: https://www.linkedin.com/in/pedro-kosciuk-lima-a29855207/
+- Team: https://www.linkedin.com/in/jeanpierrerodrigues/
+- Team: https://www.linkedin.com/in/enzotonatto/
