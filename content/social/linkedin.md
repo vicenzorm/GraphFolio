@@ -7,5 +7,3 @@ url: https://www.linkedin.com/in/vicenzomasera/
 # LinkedIn
 
 Professional background, experience timeline, and updates.
-
-[[About]]

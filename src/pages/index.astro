@@ -1,643 +1,1417 @@
 ---
-import '../styles/tokens.css';
-import '../styles/components.css';
+import "../styles/tokens.css";
+import "../styles/components.css";
 ---
 
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Vicenzo Másera — Graph Portfolio</title>
-    <script type="importmap">
-    {
-      "imports": {
-        "d3": "https://esm.sh/d3@7",
-        "fuse.js": "https://esm.sh/fuse.js@7",
-        "marked": "https://esm.sh/marked@17"
-      }
-    }
-    </script>
-  </head>
-  <body>
-    <div id="graph-container"></div>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Vicenzo Másera — Graph Portfolio</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
+        />
+        <script type="importmap">
+            {
+                "imports": {
+                    "d3": "https://esm.sh/d3@7",
+                    "fuse.js": "https://esm.sh/fuse.js@7",
+                    "marked": "https://esm.sh/marked@17"
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="graph-container"></div>
+        <main id="simple-mode-root" aria-live="polite"></main>
 
-    <header id="site-header">
-      <h1>Vicenzo Másera</h1>
-      <p id="site-subtitle" class="site-subtitle">Software Engineer</p>
-      <p id="onboarding-hint">click a node to explore  ·  Cmd+K to search</p>
-    </header>
+        <header id="site-header">
+            <h1>Vicenzo Másera</h1>
+            <p id="site-subtitle" class="site-subtitle">Software Engineer</p>
+            <p id="onboarding-hint">
+                click a node to explore · Cmd+K to search
+            </p>
+        </header>
 
-    <div id="hud-left">
-      <div id="color-cheatsheet" aria-label="Node color legend">
-        <p id="legend-title" class="legend-title">HOW TO NAVIGATE</p>
-        <ul>
-          <li><span class="legend-dot legend-project"></span><span id="legend-project">Project</span></li>
-          <li><span class="legend-dot legend-featured"></span><span id="legend-featured">Featured</span><span id="legend-featured-note" class="legend-annotation">← highlighted work</span></li>
-          <li><span class="legend-dot legend-personal-project"></span><span id="legend-personal-project">Personal Projects</span></li>
-          <li><span class="legend-dot legend-technology"></span><span id="legend-technology">Technology</span></li>
-          <li><span class="legend-dot legend-social"></span><span id="legend-social">Social</span><span id="legend-social-note" class="legend-annotation">← external links</span></li>
-          <li><span class="legend-dot legend-about"></span><span id="legend-about">About</span><span id="legend-about-note" class="legend-annotation">← start here</span></li>
-          <li><span class="legend-dot legend-experience"></span><span id="legend-experience">Experiences</span></li>
-        </ul>
-      </div>
-    </div>
+        <div id="hud-left">
+            <div id="color-cheatsheet" aria-label="Node color legend">
+                <p id="legend-title" class="legend-title">HOW TO NAVIGATE</p>
+                <ul>
+                    <li>
+                        <span class="legend-dot legend-project"></span><span
+                            id="legend-project">Project</span
+                        >
+                    </li>
+                    <li>
+                        <span class="legend-dot legend-featured"></span><span
+                            id="legend-featured">Featured</span
+                        ><span
+                            id="legend-featured-note"
+                            class="legend-annotation">← highlighted work</span
+                        >
+                    </li>
+                    <li>
+                        <span class="legend-dot legend-personal-project"
+                        ></span><span id="legend-personal-project"
+                            >Personal Projects</span
+                        >
+                    </li>
+                    <li>
+                        <span class="legend-dot legend-technology"></span><span
+                            id="legend-technology">Technology</span
+                        >
+                    </li>
+                    <li>
+                        <span class="legend-dot legend-social"></span><span
+                            id="legend-social">Social</span
+                        ><span id="legend-social-note" class="legend-annotation"
+                            >← external links</span
+                        >
+                    </li>
+                    <li>
+                        <span class="legend-dot legend-about"></span><span
+                            id="legend-about">About</span
+                        ><span id="legend-about-note" class="legend-annotation"
+                            >← start here</span
+                        >
+                    </li>
+                    <li>
+                        <span class="legend-dot legend-experience"></span><span
+                            id="legend-experience">Experiences</span
+                        >
+                    </li>
+                </ul>
+            </div>
+        </div>
 
-    <div id="hud-right">
-      <button id="lang-en" class="lang-btn" aria-label="Switch to English" title="English">🇺🇸</button>
-      <button id="lang-pt" class="lang-btn" aria-label="Mudar para português" title="Português">🇧🇷</button>
-      <button id="search-trigger" aria-label="Search (Cmd+K)" title="Search (Cmd+K)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
-          <path d="M16.65 16.65L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-        </svg>
-      </button>
-    </div>
-  </body>
+        <div id="hud-right">
+            <button
+                id="view-toggle"
+                class="view-btn"
+                aria-label="Switch to Simple Mode"
+                title="Simple Mode">Simple</button
+            >
+            <button id="graph-mode-hint" class="graph-mode-hint" type="button"
+            ></button>
+            <button
+                id="lang-en"
+                class="lang-btn"
+                aria-label="Switch to English"
+                title="English">🇺🇸</button
+            >
+            <button
+                id="lang-pt"
+                class="lang-btn"
+                aria-label="Mudar para português"
+                title="Português">🇧🇷</button
+            >
+            <button
+                id="search-trigger"
+                aria-label="Search (Cmd+K)"
+                title="Search (Cmd+K)"
+            >
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                >
+                    <circle
+                        cx="11"
+                        cy="11"
+                        r="7"
+                        stroke="currentColor"
+                        stroke-width="2"></circle>
+                    <path
+                        d="M16.65 16.65L21 21"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"></path>
+                </svg>
+            </button>
+        </div>
+    </body>
 </html>
 
 <script type="module">
-import * as d3 from 'd3';
-import Fuse from 'fuse.js';
-import { parse as markedParse } from 'marked';
+    import * as d3 from "d3";
+    import Fuse from "fuse.js";
+    import { parse as markedParse } from "marked";
 
-const NODE_COLORS = { project: '#0087BD', featured: '#FF6B00', 'personal-project': '#FFC300', technology: '#009F6B', social: '#FF1493', experience: '#C40233', about: '#f5f5f0' };
-const NODE_RADII = { project: 18, featured: 20, 'personal-project': 24, technology: 10, social: 9, experience: 24, about: 18 };
-const LANG_KEY = 'graphfolio-lang';
-const UI_STRINGS = {
-  en: {
-    subtitle: 'Software Engineer',
-    hint: 'click a node to explore  ·  Cmd+K to search',
-    legendTitle: 'HOW TO NAVIGATE',
-    project: 'Project',
-    featured: 'Featured',
-    featuredNote: '← highlighted work',
-    technology: 'Technology',
-    personalProject: 'Personal Projects',
-    social: 'Social',
-    socialNote: '← external links',
-    about: 'About',
-    aboutNote: '← start here',
-    experience: 'Experiences',
-    searchTitle: 'Search (Cmd+K)',
-    searchPlaceholder: 'Type to search nodes...',
-    noMatches: 'No matches found.',
-    footerEnter: 'Enter: open',
-    footerNavigate: '↑↓ / Ctrl+N,P: navigate',
-    footerEsc: 'Esc: close',
-  },
-  pt: {
-    subtitle: 'Engenheiro de Software',
-    hint: 'clique em um nodo para explorar  ·  Cmd+K para buscar',
-    legendTitle: 'COMO NAVEGAR',
-    project: 'Projeto',
-    featured: 'Destaque',
-    featuredNote: '← trabalho em destaque',
-    technology: 'Tecnologia',
-    personalProject: 'Projetos Pessoais',
-    social: 'Social',
-    socialNote: '← links externos',
-    about: 'Sobre',
-    aboutNote: '← comece por aqui',
-    experience: 'Experiências',
-    searchTitle: 'Buscar (Cmd+K)',
-    searchPlaceholder: 'Digite para buscar nodos...',
-    noMatches: 'Nenhum resultado encontrado.',
-    footerEnter: 'Enter: abrir',
-    footerNavigate: '↑↓ / Ctrl+N,P: navegar',
-    footerEsc: 'Esc: fechar',
-  }
-};
-let currentLang = localStorage.getItem(LANG_KEY) === 'pt' ? 'pt' : 'en';
-let flyToFn = null, allNodes = [], bufferVisible = false, searchVisible = false, fuseIdx = null, sResults = [], sIdx = 0, searchKeyHandler = null;
-let activeNodeSelection = null;
-let currentBufferNodeId = null;
+    const NODE_COLORS = {
+        project: "#0087BD",
+        featured: "#FF6B00",
+        "personal-project": "#FFC300",
+        technology: "#009F6B",
+        social: "#FF1493",
+        experience: "#C40233",
+        about: "#f5f5f0",
+    };
+    const NODE_RADII = {
+        project: 18,
+        featured: 20,
+        "personal-project": 24,
+        technology: 10,
+        social: 9,
+        experience: 24,
+        about: 18,
+    };
+    const LANG_KEY = "graphfolio-lang";
+    const VIEW_KEY = "graphfolio-view-mode";
+    const HAS_VISITED_KEY = "graphfolio-has-visited";
+    const HAS_TRIED_GRAPH_KEY = "graphfolio-has-tried-graph";
+    const UI_STRINGS = {
+        en: {
+            subtitle: "Software Engineer",
+            hint: "click a node to explore  ·  Cmd+K to search",
+            legendTitle: "HOW TO NAVIGATE",
+            project: "Project",
+            featured: "Featured",
+            featuredNote: "← highlighted work",
+            technology: "Technology",
+            personalProject: "Personal Projects",
+            social: "Social",
+            socialNote: "← external links",
+            about: "About",
+            aboutNote: "← start here",
+            experience: "Experiences",
+            searchTitle: "Search (Cmd+K)",
+            searchPlaceholder: "Type to search nodes...",
+            noMatches: "No matches found.",
+            footerEnter: "Enter: open",
+            footerNavigate: "↑↓ / Ctrl+N,P: navigate",
+            footerEsc: "Esc: close",
+            simpleNavAbout: "About",
+            simpleNavFeatured: "Featured",
+            simpleNavProjects: "Projects",
+            simpleNavExperience: "Experience",
+            simpleNavTech: "Technologies",
+            simpleNavContact: "Contact",
+            simpleTitle: "Simple Mode",
+            simpleSubtitle:
+                "A quick overview of profile, projects, and contact links.",
+            openNode: "+ details",
+            viewRepo: "Repository",
+            viewAppStore: "App Store",
+            quickLinks: "Quick links",
+            tryGraph: "Try Graph Mode",
+            openFeatured: "Open Featured",
+            openLinkedIn: "LinkedIn",
+            openCV: "CV",
+            impactHighlights: "Impact highlights",
+        },
+        pt: {
+            subtitle: "Engenheiro de Software",
+            hint: "clique em um nodo para explorar  ·  Cmd+K para buscar",
+            legendTitle: "COMO NAVEGAR",
+            project: "Projeto",
+            featured: "Destaque",
+            featuredNote: "← trabalho em destaque",
+            technology: "Tecnologia",
+            personalProject: "Projetos Pessoais",
+            social: "Social",
+            socialNote: "← links externos",
+            about: "Sobre",
+            aboutNote: "← comece por aqui",
+            experience: "Experiências",
+            searchTitle: "Buscar (Cmd+K)",
+            searchPlaceholder: "Digite para buscar nodos...",
+            noMatches: "Nenhum resultado encontrado.",
+            footerEnter: "Enter: abrir",
+            footerNavigate: "↑↓ / Ctrl+N,P: navegar",
+            footerEsc: "Esc: fechar",
+            simpleNavAbout: "Sobre",
+            simpleNavFeatured: "Destaques",
+            simpleNavProjects: "Projetos",
+            simpleNavExperience: "Experiência",
+            simpleNavTech: "Tecnologias",
+            simpleNavContact: "Contato",
+            simpleTitle: "Modo Simples",
+            simpleSubtitle:
+                "Visão rápida de perfil, projetos e links de contato.",
+            openNode: "+ detalhes",
+            viewRepo: "Repositório",
+            viewAppStore: "App Store",
+            quickLinks: "Links rápidos",
+            tryGraph: "Experimentar modo Grafo",
+            openFeatured: "Abrir Destaque",
+            openLinkedIn: "LinkedIn",
+            openCV: "CV",
+            impactHighlights: "Destaques de impacto",
+        },
+    };
+    let currentLang = localStorage.getItem(LANG_KEY) === "pt" ? "pt" : "en";
+    const hasVisitedBefore = localStorage.getItem(HAS_VISITED_KEY) === "1";
+    const savedView = localStorage.getItem(VIEW_KEY);
+    let currentViewMode = savedView
+        ? savedView === "simple"
+            ? "simple"
+            : "graph"
+        : hasVisitedBefore
+          ? "graph"
+          : "simple";
+    let showGraphNudge =
+        !hasVisitedBefore && localStorage.getItem(HAS_TRIED_GRAPH_KEY) !== "1";
+    let flyToFn = null,
+        allNodes = [],
+        bufferVisible = false,
+        searchVisible = false,
+        fuseIdx = null,
+        sResults = [],
+        sIdx = 0,
+        searchKeyHandler = null;
+    let activeNodeSelection = null;
+    let currentBufferNodeId = null;
 
-function normalizeNodeKey(value) {
-  return (value || '')
-    .toString()
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, ' ');
-}
-
-function resolveWikilinkTarget(rawLabel) {
-  const label = normalizeNodeKey(rawLabel);
-  if (!label) return null;
-
-  return allNodes.find(n => {
-    const byId = normalizeNodeKey(n.id) === label;
-    const byTitle = normalizeNodeKey(n.title) === label;
-    return byId || byTitle;
-  }) || null;
-}
-
-function marked(body) { return markedParse(body, { async: false }); }
-
-function toLabelType(type) {
-  if (!type) return '';
-  return type.charAt(0).toUpperCase() + type.slice(1);
-}
-
-function t(key) {
-  return UI_STRINGS[currentLang][key] || UI_STRINGS.en[key] || '';
-}
-
-function translateMarkdownSections(body) {
-  if (currentLang !== 'pt') return body;
-  const pairs = [
-    ['## What problem did this solve?', '## Qual problema isso resolveu?'],
-    ['## What was my role?', '## Qual foi meu papel?'],
-    ['## What I specifically built', '## O que eu construí especificamente'],
-    ['## Business impact (most important)', '## Impacto de negócio (principal)'],
-    ['## Business impact', '## Impacto de negócio'],
-    ['## How I delivered', '## Como eu entreguei'],
-    ['## Tech used (short list)', '## Tecnologias usadas (resumo)'],
-    ['## Tech used', '## Tecnologias usadas'],
-    ['## Links', '## Links'],
-    ['## Why this is featured', '## Por que este projeto está em destaque'],
-    ['## Why this project is highlighted', '## Por que este projeto está em destaque'],
-    ['## Highlight dimensions', '## Dimensões de destaque'],
-    ['## Featured project', '## Projeto em destaque'],
-    ['## Why I use it', '## Por que eu uso'],
-    ['## Proven outcomes', '## Resultados alcançados'],
-    ['## Level of proficiency', '## Nível de proficiência'],
-    ['## Notes', '## Notas'],
-    ['## Context', '## Contexto'],
-    ['## Responsibilities', '## Responsabilidades'],
-    ['## Projects delivered', '## Projetos entregues'],
-    ['## Skills demonstrated', '## Competências demonstradas'],
-    ['## Snapshot', '## Resumo'],
-    ['## Featured work', '## Trabalhos em destaque'],
-    ['## My experiences', '## Minhas experiências'],
-    ['## Contact', '## Contato']
-  ];
-
-  let translated = body;
-  for (const [en, pt] of pairs) {
-    translated = translated.replaceAll(en, pt);
-  }
-  return translated;
-}
-
-function applyLanguageUI() {
-  document.documentElement.lang = currentLang === 'pt' ? 'pt-BR' : 'en';
-  const ui = UI_STRINGS[currentLang];
-
-  const map = [
-    ['site-subtitle', ui.subtitle],
-    ['onboarding-hint', ui.hint],
-    ['legend-title', ui.legendTitle],
-    ['legend-project', ui.project],
-    ['legend-featured', ui.featured],
-    ['legend-featured-note', ui.featuredNote],
-    ['legend-personal-project', ui.personalProject],
-    ['legend-technology', ui.technology],
-    ['legend-social', ui.social],
-    ['legend-social-note', ui.socialNote],
-    ['legend-about', ui.about],
-    ['legend-about-note', ui.aboutNote],
-    ['legend-experience', ui.experience],
-  ];
-
-  map.forEach(([id, text]) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = text;
-  });
-
-  const searchTrigger = document.getElementById('search-trigger');
-  if (searchTrigger) {
-    searchTrigger.setAttribute('title', ui.searchTitle);
-    searchTrigger.setAttribute('aria-label', ui.searchTitle);
-  }
-
-  const btnEn = document.getElementById('lang-en');
-  const btnPt = document.getElementById('lang-pt');
-  btnEn?.classList.toggle('active', currentLang === 'en');
-  btnPt?.classList.toggle('active', currentLang === 'pt');
-
-  if (activeNodeSelection) {
-    activeNodeSelection.select('text').text(d => d.type === 'social' ? (d.title + ' ↗') : d.title);
-  }
-
-  if (bufferVisible && currentBufferNodeId) {
-    const node = allNodes.find(n => n.id === currentBufferNodeId);
-    if (node) openBuffer(node);
-  }
-}
-
-function setLanguage(lang) {
-  if (lang !== 'en' && lang !== 'pt') return;
-  currentLang = lang;
-  localStorage.setItem(LANG_KEY, lang);
-  applyLanguageUI();
-}
-
-function closeBuffer() {
-  if (!bufferVisible) return; bufferVisible = false; currentBufferNodeId = null;
-  const bd = document.querySelector('.node-buffer-backdrop');
-  if (bd) { const p = bd.querySelector('div'); if(p) p.classList.remove('visible'); setTimeout(() => bd.remove(), 130); }
-}
-
-function openBuffer(node) {
-  closeBuffer();
-  currentBufferNodeId = node.id;
-  const bd = document.createElement('div'); bd.className = 'node-buffer-backdrop';
-  const pnl = document.createElement('div');
-  const localizedBody = translateMarkdownSections(node.body);
-  const rendered = marked(localizedBody);
-  pnl.innerHTML = '<div class="buffer-header"><span class="buffer-title">' + node.title + '</span><button class="buffer-close" aria-label="Close">Close</button></div><div class="buffer-body">' + rendered.replace(/\[\[([^\]]+)\]\]/g, '<span class="wikilink">$1</span>') + '</div>';
-  bd.appendChild(pnl);
-  const close = () => closeBuffer();
-  pnl.querySelector('.buffer-close').addEventListener('click', close);
-
-  const bufferBody = pnl.querySelector('.buffer-body');
-  if (bufferBody) {
-    bufferBody.addEventListener('click', (event) => {
-      const target = event.target;
-      if (!(target instanceof HTMLElement) || !target.classList.contains('wikilink')) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      const rawLabel = target.textContent || '';
-      const linkedNode = resolveWikilinkTarget(rawLabel);
-      if (!linkedNode) return;
-
-      closeBuffer();
-      if (flyToFn) {
-        flyToFn(linkedNode.id);
-      } else {
-        openBuffer(linkedNode);
-      }
-    });
-  }
-
-  bd.addEventListener('click', e => { if (e.target === bd) close(); });
-  document.body.appendChild(bd);
-  bufferVisible = true;
-  requestAnimationFrame(() => pnl.classList.add('visible'));
-}
-
-function closeSearch() {
-  searchVisible = false; sResults = [];
-  if (searchKeyHandler) {
-    document.removeEventListener('keydown', searchKeyHandler);
-    searchKeyHandler = null;
-  }
-  const el = document.querySelector('.omni-backdrop');
-  if (el) { el.querySelector('div')?.classList.remove('visible'); setTimeout(() => el.remove(), 130); }
-}
-
-function updateActiveResult(bd, shouldScroll = true) {
-  const items = bd.querySelectorAll('.omni-result');
-  items.forEach((el, idx) => {
-    const isActive = idx === sIdx;
-    el.classList.toggle('active', isActive);
-    el.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    if (isActive && shouldScroll) {
-      el.scrollIntoView({ block: 'nearest' });
-    }
-  });
-}
-
-function moveSelection(delta, bd) {
-  if (sResults.length === 0) return;
-  sIdx = (sIdx + delta + sResults.length) % sResults.length;
-  updateActiveResult(bd, true);
-}
-
-function renderResults(bd) {
-  const rl = bd.querySelector('.omni-results');
-  if (!rl) return;
-  if (sResults.length === 0) {
-    rl.innerHTML = '<div class="omni-empty">' + t('noMatches') + '</div>';
-    return;
-  }
-
-  rl.innerHTML = sResults.map((n, i) => {
-    const c = NODE_COLORS[n.type] || '#696969';
-    return '<div class="omni-result' + (i === sIdx ? ' active' : '') + '" role="option" aria-selected="' + (i === sIdx ? 'true' : 'false') + '" data-i="' + i + '"><span class="omni-badge" style="background:' + c + '22;color:' + c + ';border:1px solid ' + c + '55">' + n.type.toUpperCase() + '</span><span class="omni-result-title">' + n.title + '</span>' + (n.description ? '<span class="omni-result-desc"> — ' + n.description + '</span>' : '') + '</div>';
-  }).join('');
-
-  rl.querySelectorAll('.omni-result').forEach(el => {
-    el.addEventListener('mousemove', () => {
-      const idx = parseInt(el.dataset.i);
-      if (Number.isNaN(idx) || idx === sIdx) return;
-      sIdx = idx;
-      updateActiveResult(bd, false);
-    });
-
-    el.addEventListener('click', () => {
-      const idx = parseInt(el.dataset.i);
-      const targetId = sResults[idx].id;
-      closeSearch(); closeBuffer();
-      if (flyToFn) flyToFn(targetId);
-    });
-  });
-
-  updateActiveResult(bd, true);
-}
-
-function openOmniSearch(nodes) {
-  if (searchVisible) return;
-  searchVisible = true;
-  sIdx = 0;
-  fuseIdx = new Fuse(nodes, { keys: [{ name: 'title', weight: 0.7 }, { name: 'description', weight: 0.4 }, { name: 'body', weight: 0.2 }], threshold: 0.35 });
-  sResults = nodes.slice(0, 15);
-  const bd = document.createElement('div');
-  bd.className = 'omni-backdrop';
-  bd.innerHTML = '<div><input class="omni-input" type="text" placeholder="' + t('searchPlaceholder') + '" autocomplete="off" /><div class="omni-results" role="listbox"></div><div class="omni-footer"><span>' + t('footerEnter') + '</span><span>' + t('footerNavigate') + '</span><span>' + t('footerEsc') + '</span></div></div>';
-  const inputEl = bd.querySelector('.omni-input');
-  inputEl.addEventListener('input', function () {
-    const q = this.value.trim();
-    if (!q || !fuseIdx) { sResults = nodes.slice(0, 15); }
-    else { sResults = fuseIdx.search(q).slice(0, 15).map(r => r.item); }
-    sIdx = 0;
-    renderResults(bd);
-  });
-  bd.addEventListener('click', e => { if (e.target === bd) closeSearch(); });
-  searchKeyHandler = function (e) {
-    if (!searchVisible) return;
-    const key = e.key.toLowerCase();
-
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      closeSearch();
-      return;
+    function normalizeNodeKey(value) {
+        return (value || "")
+            .toString()
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/\s+/g, " ");
     }
 
-    if (e.key === 'ArrowDown' || (e.ctrlKey && key === 'n' && !e.metaKey) || (e.ctrlKey && key === 'j' && !e.metaKey)) {
-      e.preventDefault();
-      moveSelection(1, bd);
-      return;
+    function resolveWikilinkTarget(rawLabel) {
+        const label = normalizeNodeKey(rawLabel);
+        if (!label) return null;
+
+        return (
+            allNodes.find((n) => {
+                const byId = normalizeNodeKey(n.id) === label;
+                const byTitle = normalizeNodeKey(getNodeTitle(n)) === label;
+                const byFallbackTitle = normalizeNodeKey(n.title) === label;
+                return byId || byTitle || byFallbackTitle;
+            }) || null
+        );
     }
 
-    if (e.key === 'ArrowUp' || (e.ctrlKey && key === 'p' && !e.metaKey) || (e.ctrlKey && key === 'k' && !e.metaKey)) {
-      e.preventDefault();
-      moveSelection(-1, bd);
-      return;
+    function marked(body) {
+        return markedParse(body, { async: false });
     }
 
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (sResults[sIdx] && flyToFn) {
-        const targetId = sResults[sIdx].id;
+    function toLabelType(type) {
+        if (!type) return "";
+        return type.charAt(0).toUpperCase() + type.slice(1);
+    }
+
+    function t(key) {
+        return UI_STRINGS[currentLang][key] || UI_STRINGS.en[key] || "";
+    }
+
+    function getNodeTitle(node) {
+        if (!node) return "";
+        if (currentLang === "pt") return node.title_pt || node.title;
+        return node.title;
+    }
+
+    function getNodeDescription(node) {
+        if (!node) return "";
+        if (currentLang === "pt")
+            return node.description_pt || node.description || "";
+        return node.description || "";
+    }
+
+    function getNodeBody(node) {
+        if (!node) return "";
+        if (currentLang === "pt")
+            return node.body_pt || translateMarkdownSections(node.body || "");
+        return node.body || "";
+    }
+
+    function getLocalizedNode(node) {
+        return {
+            ...node,
+            title: getNodeTitle(node),
+            description: getNodeDescription(node),
+            body: getNodeBody(node),
+        };
+    }
+
+    function escapeHtml(value) {
+        return String(value || "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+
+    function extractFirstUrl(body, regex) {
+        if (!body) return null;
+        const m = body.match(regex);
+        return m ? m[0] : null;
+    }
+
+    const REPO_ICON_HTML =
+        '<i class="devicon-git-plain colored repo-icon" aria-hidden="true"></i>';
+
+    function extractBulletMetrics(body, max = 3) {
+        if (!body) return [];
+        const lines = body
+            .split("\n")
+            .map((l) => l.trim())
+            .filter(Boolean);
+        const bullets = lines
+            .filter((l) => l.startsWith("- "))
+            .map((l) => l.slice(2).trim());
+        return bullets.slice(0, max);
+    }
+
+    function renderSimpleMode(nodes) {
+        const root = document.getElementById("simple-mode-root");
+        if (!root) return;
+
+        const about = nodes.find((n) => n.type === "about");
+        const featured = nodes.filter((n) => n.type === "featured");
+        const projects = nodes.filter((n) => n.type === "project");
+        const experiences = nodes.filter((n) => n.type === "experience");
+        const tech = nodes.filter((n) => n.type === "technology");
+        const contact = nodes.filter((n) => n.type === "social");
+        const linkedInNode = nodes.find((n) => n.id === "linkedin");
+        const safeconsFeaturedNode = nodes.find(
+            (n) => n.id === "safecons-featured",
+        );
+
+        const card = (n, extra = "") => {
+            const localized = getLocalizedNode(n);
+            const repo = extractFirstUrl(
+                localized.body,
+                /https?:\/\/github\.com\/[\w.-]+\/[\w.-]+/i,
+            );
+            const appStore = extractFirstUrl(
+                localized.body,
+                /https?:\/\/apps\.apple\.com\/[^\s)]+/i,
+            );
+            const metrics =
+                n.type === "featured"
+                    ? extractBulletMetrics(localized.body, 3)
+                    : [];
+            return (
+                '<article class="simple-card">' +
+                "<h3>" +
+                escapeHtml(localized.title) +
+                "</h3>" +
+                (localized.description
+                    ? "<p>" + escapeHtml(localized.description) + "</p>"
+                    : "") +
+                (metrics.length > 0
+                    ? '<p class="simple-muted" style="margin-top:8px">' +
+                      t("impactHighlights") +
+                      '</p><div class="simple-chip-grid">' +
+                      metrics
+                          .map(
+                              (m) =>
+                                  '<span class="simple-chip simple-chip-passive">' +
+                                  escapeHtml(m) +
+                                  "</span>",
+                          )
+                          .join("") +
+                      "</div>"
+                    : "") +
+                '<div class="simple-actions">' +
+                '<button class="simple-btn" data-node-id="' +
+                escapeHtml(n.id) +
+                '">' +
+                t("openNode") +
+                "</button>" +
+                (appStore
+                    ? '<a class="simple-link" href="' +
+                      escapeHtml(appStore) +
+                      '" target="_blank" rel="noopener noreferrer">' +
+                      t("viewAppStore") +
+                      "</a>"
+                    : "") +
+                (repo
+                    ? '<a class="simple-link" href="' +
+                      escapeHtml(repo) +
+                      '" target="_blank" rel="noopener noreferrer">' +
+                      REPO_ICON_HTML +
+                      "<span>" +
+                      t("viewRepo") +
+                      "</span></a>"
+                    : "") +
+                "</div>" +
+                extra +
+                "</article>"
+            );
+        };
+
+        root.innerHTML =
+            "" +
+            '<section class="simple-shell">' +
+            '<header class="simple-hero">' +
+            "<h2>" +
+            t("simpleTitle") +
+            "</h2>" +
+            "<p>" +
+            t("simpleSubtitle") +
+            "</p>" +
+            "</header>" +
+            '<nav class="simple-nav">' +
+            '<a href="#simple-about">' +
+            t("simpleNavAbout") +
+            "</a>" +
+            '<a href="#simple-featured">' +
+            t("simpleNavFeatured") +
+            "</a>" +
+            '<a href="#simple-contact">' +
+            t("simpleNavContact") +
+            "</a>" +
+            '<a href="#simple-projects">' +
+            t("simpleNavProjects") +
+            "</a>" +
+            '<a href="#simple-experience">' +
+            t("simpleNavExperience") +
+            "</a>" +
+            '<a href="#simple-tech">' +
+            t("simpleNavTech") +
+            "</a>" +
+            "</nav>" +
+            '<section id="simple-about" class="simple-section">' +
+            "<h3>" +
+            t("simpleNavAbout") +
+            "</h3>" +
+            (about ? card(about) : "") +
+            "</section>" +
+            '<section id="simple-featured" class="simple-section">' +
+            "<h3>" +
+            t("simpleNavFeatured") +
+            "</h3>" +
+            '<div class="simple-grid">' +
+            featured.map((n) => card(n)).join("") +
+            "</div>" +
+            "</section>" +
+            '<section id="simple-contact" class="simple-section">' +
+            "<h3>" +
+            t("simpleNavContact") +
+            "</h3>" +
+            '<p class="simple-muted">' +
+            t("quickLinks") +
+            "</p>" +
+            '<div class="simple-chip-grid">' +
+            contact
+                .map((n) =>
+                    n.url
+                        ? '<a class="simple-chip" href="' +
+                          escapeHtml(n.url) +
+                          '" target="_blank" rel="noopener noreferrer">' +
+                          escapeHtml(getNodeTitle(n)) +
+                          "</a>"
+                        : '<button class="simple-chip" data-node-id="' +
+                          escapeHtml(n.id) +
+                          '">' +
+                          escapeHtml(getNodeTitle(n)) +
+                          "</button>",
+                )
+                .join("") +
+            "</div>" +
+            "</section>" +
+            '<section id="simple-projects" class="simple-section">' +
+            "<h3>" +
+            t("simpleNavProjects") +
+            "</h3>" +
+            '<div class="simple-grid">' +
+            projects.map((n) => card(n)).join("") +
+            "</div>" +
+            "</section>" +
+            '<section id="simple-experience" class="simple-section">' +
+            "<h3>" +
+            t("simpleNavExperience") +
+            "</h3>" +
+            '<div class="simple-grid">' +
+            experiences.map((n) => card(n)).join("") +
+            "</div>" +
+            "</section>" +
+            '<section id="simple-tech" class="simple-section">' +
+            "<h3>" +
+            t("simpleNavTech") +
+            "</h3>" +
+            '<div class="simple-chip-grid">' +
+            tech
+                .map(
+                    (n) =>
+                        '<button class="simple-chip" data-node-id="' +
+                        escapeHtml(n.id) +
+                        '">' +
+                        escapeHtml(getNodeTitle(n)) +
+                        "</button>",
+                )
+                .join("") +
+            "</div>" +
+            "</section>" +
+            "</section>";
+
+        root.querySelectorAll("[data-node-id]").forEach((el) => {
+            el.addEventListener("click", () => {
+                const nodeId = el.getAttribute("data-node-id");
+                if (!nodeId) return;
+                if (flyToFn) {
+                    flyToFn(nodeId);
+                } else {
+                    const node = allNodes.find((n) => n.id === nodeId);
+                    if (node) openBuffer(node);
+                }
+            });
+        });
+    }
+
+    function translateMarkdownSections(body) {
+        if (currentLang !== "pt") return body;
+        const pairs = [
+            [
+                "## What problem did this solve?",
+                "## Qual problema isso resolveu?",
+            ],
+            ["## What was my role?", "## Qual foi meu papel?"],
+            [
+                "## What I specifically built",
+                "## O que eu construí especificamente",
+            ],
+            [
+                "## Business impact (most important)",
+                "## Impacto de negócio (principal)",
+            ],
+            ["## Business impact", "## Impacto de negócio"],
+            ["## How I delivered", "## Como eu entreguei"],
+            ["## Tech used (short list)", "## Tecnologias usadas (resumo)"],
+            ["## Tech used", "## Tecnologias usadas"],
+            ["## Links", "## Links"],
+            [
+                "## Why this is featured",
+                "## Por que este projeto está em destaque",
+            ],
+            [
+                "## Why this project is highlighted",
+                "## Por que este projeto está em destaque",
+            ],
+            ["## Highlight dimensions", "## Dimensões de destaque"],
+            ["## Featured project", "## Projeto em destaque"],
+            ["## Why I use it", "## Por que eu uso"],
+            ["## Proven outcomes", "## Resultados alcançados"],
+            ["## Level of proficiency", "## Nível de proficiência"],
+            ["## Notes", "## Notas"],
+            ["## Context", "## Contexto"],
+            ["## Responsibilities", "## Responsabilidades"],
+            ["## Projects delivered", "## Projetos entregues"],
+            ["## Skills demonstrated", "## Competências demonstradas"],
+            ["## Snapshot", "## Resumo"],
+            ["## Featured work", "## Trabalhos em destaque"],
+            ["## My experiences", "## Minhas experiências"],
+            ["## Contact", "## Contato"],
+        ];
+
+        let translated = body;
+        for (const [en, pt] of pairs) {
+            translated = translated.replaceAll(en, pt);
+        }
+        return translated;
+    }
+
+    function applyLanguageUI() {
+        document.documentElement.lang = currentLang === "pt" ? "pt-BR" : "en";
+        const ui = UI_STRINGS[currentLang];
+
+        const map = [
+            ["site-subtitle", ui.subtitle],
+            ["onboarding-hint", ui.hint],
+            ["legend-title", ui.legendTitle],
+            ["legend-project", ui.project],
+            ["legend-featured", ui.featured],
+            ["legend-featured-note", ui.featuredNote],
+            ["legend-personal-project", ui.personalProject],
+            ["legend-technology", ui.technology],
+            ["legend-social", ui.social],
+            ["legend-social-note", ui.socialNote],
+            ["legend-about", ui.about],
+            ["legend-about-note", ui.aboutNote],
+            ["legend-experience", ui.experience],
+        ];
+
+        map.forEach(([id, text]) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        });
+
+        const searchTrigger = document.getElementById("search-trigger");
+        if (searchTrigger) {
+            searchTrigger.setAttribute("title", ui.searchTitle);
+            searchTrigger.setAttribute("aria-label", ui.searchTitle);
+        }
+
+        const graphHintBtn = document.getElementById("graph-mode-hint");
+        if (graphHintBtn) {
+            graphHintBtn.textContent = ui.tryGraph;
+            graphHintBtn.setAttribute("title", ui.tryGraph);
+            graphHintBtn.setAttribute("aria-label", ui.tryGraph);
+        }
+
+        const btnEn = document.getElementById("lang-en");
+        const btnPt = document.getElementById("lang-pt");
+        btnEn?.classList.toggle("active", currentLang === "en");
+        btnPt?.classList.toggle("active", currentLang === "pt");
+
+        if (allNodes.length > 0) {
+            renderSimpleMode(allNodes);
+        }
+
+        if (activeNodeSelection) {
+            activeNodeSelection.select("text").text((d) => {
+                const title = getNodeTitle(d);
+                return d.type === "social" ? title + " ↗" : title;
+            });
+        }
+
+        if (bufferVisible && currentBufferNodeId) {
+            const node = allNodes.find((n) => n.id === currentBufferNodeId);
+            if (node) openBuffer(node);
+        }
+    }
+
+    function setLanguage(lang) {
+        if (lang !== "en" && lang !== "pt") return;
+        currentLang = lang;
+        localStorage.setItem(LANG_KEY, lang);
+        applyLanguageUI();
+    }
+
+    function applyViewMode() {
+        const isSimple = currentViewMode === "simple";
+        document.body.classList.toggle("simple-mode", isSimple);
+        const toggle = document.getElementById("view-toggle");
+        if (toggle) {
+            toggle.textContent = isSimple ? "Graph" : "Simple";
+            toggle.setAttribute(
+                "title",
+                isSimple ? "Graph Mode" : "Simple Mode",
+            );
+            toggle.setAttribute(
+                "aria-label",
+                isSimple ? "Switch to Graph Mode" : "Switch to Simple Mode",
+            );
+            toggle.classList.toggle("active", isSimple);
+        }
+
+        const graphHintBtn = document.getElementById("graph-mode-hint");
+        if (graphHintBtn) {
+            const showHint = isSimple && showGraphNudge;
+            graphHintBtn.classList.toggle("visible", showHint);
+            graphHintBtn.setAttribute(
+                "aria-hidden",
+                showHint ? "false" : "true",
+            );
+            graphHintBtn.tabIndex = showHint ? 0 : -1;
+        }
+    }
+
+    function toggleViewMode() {
+        currentViewMode = currentViewMode === "simple" ? "graph" : "simple";
+        if (currentViewMode === "graph") {
+            showGraphNudge = false;
+            localStorage.setItem(HAS_TRIED_GRAPH_KEY, "1");
+        }
+        localStorage.setItem(VIEW_KEY, currentViewMode);
         closeSearch();
         closeBuffer();
-        flyToFn(targetId);
-      }
+        applyViewMode();
     }
-  };
-  document.addEventListener('keydown', searchKeyHandler);
-  document.body.appendChild(bd);
-  requestAnimationFrame(() => {
-    bd.querySelector('div').classList.add('visible');
-    inputEl.focus();
-    renderResults(bd);
-  });
-}
 
-function triggerSearch() {
-  if (allNodes.length > 0) openOmniSearch(allNodes);
-}
-
-document.addEventListener('keydown', e => {
-  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-    e.preventDefault();
-    triggerSearch();
-    return;
-  }
-  if (e.key === 'Escape' && (bufferVisible || searchVisible)) {
-    e.preventDefault();
-    closeBuffer();
-    closeSearch();
-  }
-});
-
-function setupOnboardingHint() {
-  const hintEl = document.getElementById('onboarding-hint');
-  if (!hintEl) return;
-
-  setTimeout(() => {
-    hintEl.classList.add('is-fading-out');
-  }, 5600);
-
-  setTimeout(() => {
-    hintEl.style.display = 'none';
-  }, 6400);
-}
-
-function pulseNode(selection, baseRadius) {
-  let count = 0;
-  function doPulse() {
-    if (count >= 3) return;
-    count++;
-    selection
-      .transition().duration(500).ease(d3.easeSinInOut)
-      .attr('r', baseRadius * 1.35)
-      .style('opacity', 0.7)
-      .transition().duration(500).ease(d3.easeSinInOut)
-      .attr('r', baseRadius)
-      .style('opacity', 1)
-      .on('end', doPulse);
-  }
-  doPulse();
-}
-
-function getPulseTargetIds(nodes, edges) {
-  const aboutOrHome = nodes.find(n => n.type === 'about' || n.type === 'home');
-  if (aboutOrHome) return [aboutOrHome.id];
-
-  const degreeById = new Map();
-  nodes.forEach(n => degreeById.set(n.id, 0));
-  edges.forEach(e => {
-    const sourceId = typeof e.source === 'string' ? e.source : e.source.id;
-    const targetId = typeof e.target === 'string' ? e.target : e.target.id;
-    degreeById.set(sourceId, (degreeById.get(sourceId) || 0) + 1);
-    degreeById.set(targetId, (degreeById.get(targetId) || 0) + 1);
-  });
-
-  const projectNodes = nodes.filter(n => n.type === 'project');
-  if (projectNodes.length === 0) return [];
-
-  let mostConnectedProject = projectNodes[0];
-  let maxDegree = degreeById.get(mostConnectedProject.id) || 0;
-  for (const node of projectNodes) {
-    const degree = degreeById.get(node.id) || 0;
-    if (degree > maxDegree) {
-      mostConnectedProject = node;
-      maxDegree = degree;
+    function closeBuffer() {
+        if (!bufferVisible) return;
+        bufferVisible = false;
+        currentBufferNodeId = null;
+        const bd = document.querySelector(".node-buffer-backdrop");
+        if (bd) {
+            const p = bd.querySelector("div");
+            if (p) p.classList.remove("visible");
+            setTimeout(() => bd.remove(), 130);
+        }
     }
-  }
-  return [mostConnectedProject.id];
-}
 
-function mountGraph(container, data) {
-  if (data.nodes.length === 0) {
-    container.innerHTML = '<p style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-dim);font-family:var(--font-mono)">No graph data. Add .md files to content/ and rebuild.</p>';
-    return;
-  }
+    function openBuffer(node) {
+        closeBuffer();
+        currentBufferNodeId = node.id;
+        const bd = document.createElement("div");
+        bd.className = "node-buffer-backdrop";
+        const pnl = document.createElement("div");
+        const localizedBody = getNodeBody(node);
+        const rendered = marked(localizedBody);
+        pnl.innerHTML =
+            '<div class="buffer-header"><span class="buffer-title">' +
+            getNodeTitle(node) +
+            '</span><button class="buffer-close" aria-label="Close">Close</button></div><div class="buffer-body">' +
+            rendered.replace(
+                /\[\[([^\]]+)\]\]/g,
+                '<span class="wikilink">$1</span>',
+            ) +
+            "</div>";
+        bd.appendChild(pnl);
+        const close = () => closeBuffer();
+        pnl.querySelector(".buffer-close").addEventListener("click", close);
 
-  allNodes = data.nodes;
-  const width = innerWidth, height = innerHeight;
+        const bufferBody = pnl.querySelector(".buffer-body");
+        if (bufferBody) {
+            bufferBody.addEventListener("click", (event) => {
+                const target = event.target;
+                if (
+                    !(target instanceof HTMLElement) ||
+                    !target.classList.contains("wikilink")
+                )
+                    return;
 
-  const tooltip = document.createElement('div');
-  tooltip.className = 'graph-tooltip';
-  document.body.appendChild(tooltip);
+                event.preventDefault();
+                event.stopPropagation();
 
-  const svg = d3.select(container).append('svg').attr('width', '100%').attr('height', '100%');
-  const defs = svg.append('defs');
-  const socialGlow = defs.append('filter')
-    .attr('id', 'social-glow')
-    .attr('x', '-250%')
-    .attr('y', '-250%')
-    .attr('width', '600%')
-    .attr('height', '600%');
-  socialGlow.append('feGaussianBlur').attr('stdDeviation', '3').attr('result', 'coloredBlur');
-  const socialGlowMerge = socialGlow.append('feMerge');
-  socialGlowMerge.append('feMergeNode').attr('in', 'coloredBlur');
-  socialGlowMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+                const rawLabel = target.textContent || "";
+                const linkedNode = resolveWikilinkTarget(rawLabel);
+                if (!linkedNode) return;
 
-  const g = svg.append('g');
-  const zoom = d3.zoom().scaleExtent([0.3, 3]).on('zoom', ev => g.attr('transform', ev.transform));
-  svg.call(zoom);
+                closeBuffer();
+                if (flyToFn) {
+                    flyToFn(linkedNode.id);
+                } else {
+                    openBuffer(linkedNode);
+                }
+            });
+        }
 
-  const edgesSel = g.append('g').attr('class', 'edges').selectAll('line').data(data.edges).join('line').attr('stroke', '#696969').attr('stroke-opacity', 0.4).attr('stroke-width', 1);
+        bd.addEventListener("click", (e) => {
+            if (e.target === bd) close();
+        });
+        document.body.appendChild(bd);
+        bufferVisible = true;
+        requestAnimationFrame(() => pnl.classList.add("visible"));
+    }
 
-  const nodeSel = g.append('g').attr('class', 'nodes').selectAll('g').data(data.nodes).join('g').attr('cursor', 'pointer');
-  activeNodeSelection = nodeSel;
-  nodeSel.append('circle').attr('class', 'node-core').attr('r', d => NODE_RADII[d.type] || 10).attr('fill', d => NODE_COLORS[d.type] || '#009F6B').attr('stroke', 'rgba(198,198,196,0.2)').attr('stroke-width', 1).attr('filter', d => d.type === 'social' ? 'url(#social-glow)' : null);
-  nodeSel.filter(d => d.type === 'about').append('circle').attr('class', 'about-ring').attr('r', d => (NODE_RADII[d.type] || 10) + 6).attr('fill', 'none').attr('stroke', '#f5f5f0').attr('stroke-opacity', 0.3).attr('stroke-width', 1);
-  nodeSel.append('text').text(d => d.type === 'social' ? (d.title + ' ↗') : d.title).attr('text-anchor', 'middle').attr('dy', d => (NODE_RADII[d.type] || 10) + (d.type === 'about' ? 16 : 14)).attr('fill', '#C6C6C4').attr('font-size', d => {
-    if (d.type === 'about') return '13px';
-    const r = NODE_RADII[d.type] || 10;
-    return r >= 18 ? '11px' : r >= 10 ? '9px' : '7px';
-  }).attr('font-weight', d => d.type === 'about' ? 700 : 400).attr('font-family', "'JetBrains Mono', monospace").attr('pointer-events', 'none').style('text-shadow', '0 0 6px rgba(0,0,0,0.9)');
+    function closeSearch() {
+        searchVisible = false;
+        sResults = [];
+        if (searchKeyHandler) {
+            document.removeEventListener("keydown", searchKeyHandler);
+            searchKeyHandler = null;
+        }
+        const el = document.querySelector(".omni-backdrop");
+        if (el) {
+            el.querySelector("div")?.classList.remove("visible");
+            setTimeout(() => el.remove(), 130);
+        }
+    }
 
-  const adj = new Map();
-  for (const e of data.edges) {
-    const s = typeof e.source === 'string' ? e.source : e.source.id;
-    const t = typeof e.target === 'string' ? e.target : e.target.id;
-    if (!adj.has(s)) adj.set(s, new Set());
-    if (!adj.has(t)) adj.set(t, new Set());
-    adj.get(s).add(t);
-    adj.get(t).add(s);
-  }
+    function updateActiveResult(bd, shouldScroll = true) {
+        const items = bd.querySelectorAll(".omni-result");
+        items.forEach((el, idx) => {
+            const isActive = idx === sIdx;
+            el.classList.toggle("active", isActive);
+            el.setAttribute("aria-selected", isActive ? "true" : "false");
+            if (isActive && shouldScroll) {
+                el.scrollIntoView({ block: "nearest" });
+            }
+        });
+    }
 
-  nodeSel.on('mouseover', function (ev, d) {
-    const c = adj.get(d.id) || new Set();
-    const nodeColor = NODE_COLORS[d.type] || '#696969';
-    const metaLine = d.year ? (toLabelType(d.type) + ' · ' + d.year) : toLabelType(d.type);
-    const descLine = d.description ? ('<span class="tooltip-desc">"' + d.description + '"</span>') : '';
+    function moveSelection(delta, bd) {
+        if (sResults.length === 0) return;
+        sIdx = (sIdx + delta + sResults.length) % sResults.length;
+        updateActiveResult(bd, true);
+    }
 
-    d3.select(this).select('.node-core').transition().duration(100).attr('transform', 'scale(1.6)');
+    function renderResults(bd) {
+        const rl = bd.querySelector(".omni-results");
+        if (!rl) return;
+        if (sResults.length === 0) {
+            rl.innerHTML =
+                '<div class="omni-empty">' + t("noMatches") + "</div>";
+            return;
+        }
 
-    tooltip.innerHTML =
-      '<span class="tooltip-title">' + d.title + '</span>' +
-      '<span class="tooltip-meta" style="color:' + nodeColor + '">' + metaLine + '</span>' +
-      descLine;
-    tooltip.style.borderLeftColor = nodeColor;
-    tooltip.style.left = (ev.pageX + 12) + 'px';
-    tooltip.style.top = (ev.pageY - 12) + 'px';
-    tooltip.classList.add('visible');
+        rl.innerHTML = sResults
+            .map((n, i) => {
+                const c = NODE_COLORS[n.type] || "#696969";
+                return (
+                    '<div class="omni-result' +
+                    (i === sIdx ? " active" : "") +
+                    '" role="option" aria-selected="' +
+                    (i === sIdx ? "true" : "false") +
+                    '" data-i="' +
+                    i +
+                    '"><span class="omni-badge" style="background:' +
+                    c +
+                    "22;color:" +
+                    c +
+                    ";border:1px solid " +
+                    c +
+                    '55">' +
+                    n.type.toUpperCase() +
+                    '</span><span class="omni-result-title">' +
+                    escapeHtml(getNodeTitle(n)) +
+                    "</span>" +
+                    (getNodeDescription(n)
+                        ? '<span class="omni-result-desc"> — ' +
+                          escapeHtml(getNodeDescription(n)) +
+                          "</span>"
+                        : "") +
+                    "</div>"
+                );
+            })
+            .join("");
 
-    nodeSel.transition().duration(100).attr('opacity', n => (n.id === d.id || c.has(n.id)) ? 1 : 0.15);
-    edgesSel.transition().duration(100).attr('stroke-opacity', e => { const s = typeof e.source === 'string' ? e.source : e.source.id; const t = typeof e.target === 'string' ? e.target : e.target.id; return (s === d.id || t === d.id) ? 1 : 0.06; }).attr('stroke', e => { const s = typeof e.source === 'string' ? e.source : e.source.id; const t = typeof e.target === 'string' ? e.target : e.target.id; return (s === d.id || t === d.id) ? nodeColor : '#696969'; });
-  })
-    .on('mousemove', function (ev) { tooltip.style.left = (ev.pageX + 12) + 'px'; tooltip.style.top = (ev.pageY - 12) + 'px'; })
-    .on('mouseout', function () {
-      d3.select(this).select('.node-core').transition().duration(200).attr('transform', 'scale(1)');
-      tooltip.classList.remove('visible');
-      nodeSel.transition().duration(200).attr('opacity', 1);
-      edgesSel.transition().duration(200).attr('stroke-opacity', 0.4).attr('stroke', '#696969');
-    })
-    .on('click', function (ev, d) {
-      ev.stopPropagation();
-      if (d.type === 'social' && d.url) {
-        window.open(d.url, '_blank', 'noopener,noreferrer');
-        return;
-      }
-      openBuffer(d);
+        rl.querySelectorAll(".omni-result").forEach((el) => {
+            el.addEventListener("mousemove", () => {
+                const idx = parseInt(el.dataset.i);
+                if (Number.isNaN(idx) || idx === sIdx) return;
+                sIdx = idx;
+                updateActiveResult(bd, false);
+            });
+
+            el.addEventListener("click", () => {
+                const idx = parseInt(el.dataset.i);
+                const targetId = sResults[idx].id;
+                closeSearch();
+                closeBuffer();
+                if (flyToFn) flyToFn(targetId);
+            });
+        });
+
+        updateActiveResult(bd, true);
+    }
+
+    function openOmniSearch(nodes) {
+        if (searchVisible) return;
+        searchVisible = true;
+        sIdx = 0;
+        const localizedNodes = nodes.map(getLocalizedNode);
+        fuseIdx = new Fuse(localizedNodes, {
+            keys: [
+                { name: "title", weight: 0.7 },
+                { name: "description", weight: 0.4 },
+                { name: "body", weight: 0.2 },
+            ],
+            threshold: 0.35,
+        });
+        sResults = localizedNodes.slice(0, 15);
+        const bd = document.createElement("div");
+        bd.className = "omni-backdrop";
+        bd.innerHTML =
+            '<div><input class="omni-input" type="text" placeholder="' +
+            t("searchPlaceholder") +
+            '" autocomplete="off" /><div class="omni-results" role="listbox"></div><div class="omni-footer"><span>' +
+            t("footerEnter") +
+            "</span><span>" +
+            t("footerNavigate") +
+            "</span><span>" +
+            t("footerEsc") +
+            "</span></div></div>";
+        const inputEl = bd.querySelector(".omni-input");
+        inputEl.addEventListener("input", () => {
+            const q = inputEl.value.trim();
+            if (!q || !fuseIdx) {
+                sResults = localizedNodes.slice(0, 15);
+            } else {
+                sResults = fuseIdx
+                    .search(q)
+                    .slice(0, 15)
+                    .map((r) => r.item);
+            }
+            sIdx = 0;
+            renderResults(bd);
+        });
+        bd.addEventListener("click", (e) => {
+            if (e.target === bd) closeSearch();
+        });
+
+        searchKeyHandler = function (e) {
+            if (!searchVisible) return;
+            const key = e.key.toLowerCase();
+
+            if (e.key === "Escape") {
+                e.preventDefault();
+                closeSearch();
+                return;
+            }
+
+            if (
+                e.key === "ArrowDown" ||
+                (e.ctrlKey && key === "n" && !e.metaKey) ||
+                (e.ctrlKey && key === "j" && !e.metaKey)
+            ) {
+                e.preventDefault();
+                moveSelection(1, bd);
+                return;
+            }
+
+            if (
+                e.key === "ArrowUp" ||
+                (e.ctrlKey && key === "p" && !e.metaKey) ||
+                (e.ctrlKey && key === "k" && !e.metaKey)
+            ) {
+                e.preventDefault();
+                moveSelection(-1, bd);
+                return;
+            }
+
+            if (e.key === "Enter") {
+                e.preventDefault();
+                if (sResults[sIdx] && flyToFn) {
+                    const targetId = sResults[sIdx].id;
+                    closeSearch();
+                    closeBuffer();
+                    flyToFn(targetId);
+                }
+            }
+        };
+        document.addEventListener("keydown", searchKeyHandler);
+        document.body.appendChild(bd);
+        requestAnimationFrame(() => {
+            bd.querySelector("div").classList.add("visible");
+            inputEl.focus();
+            renderResults(bd);
+        });
+    }
+
+    function triggerSearch() {
+        if (allNodes.length > 0) openOmniSearch(allNodes);
+    }
+
+    document.addEventListener("keydown", (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+            e.preventDefault();
+            triggerSearch();
+            return;
+        }
+        if (e.key === "Escape" && (bufferVisible || searchVisible)) {
+            e.preventDefault();
+            closeBuffer();
+            closeSearch();
+        }
     });
 
-  const drag = d3.drag().on('start', function (ev, d) { if (!ev.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }).on('drag', function (ev, d) { d.fx = ev.x; d.fy = ev.y; }).on('end', function (ev, d) { if (!ev.active) sim.alphaTarget(0); d.fx = null; d.fy = null; });
-  nodeSel.call(drag);
+    function setupOnboardingHint() {
+        const hintEl = document.getElementById("onboarding-hint");
+        if (!hintEl) return;
 
-  const aboutNode = data.nodes.find(n => n.type === 'about');
-  if (aboutNode) {
-    aboutNode.fx = width / 2;
-    aboutNode.fy = height / 2;
-  }
+        setTimeout(() => {
+            hintEl.classList.add("is-fading-out");
+        }, 5600);
 
-  const sim = d3.forceSimulation(data.nodes).force('charge', d3.forceManyBody().strength(-200)).force('link', d3.forceLink(data.edges).id(d => d.id).distance(80)).force('center', d3.forceCenter(width / 2, height / 2)).force('collide', d3.forceCollide().radius(d => (NODE_RADII[d.type] || 10) + 4)).on('tick', () => {
-    edgesSel.attr('x1', e => e.source.x).attr('y1', e => e.source.y).attr('x2', e => e.target.x).attr('y2', e => e.target.y);
-    nodeSel.attr('transform', d => 'translate(' + (d.x || 0) + ',' + (d.y || 0) + ')');
-  });
-  sim.alpha(1).restart();
-
-  if (aboutNode) {
-    setTimeout(() => {
-      aboutNode.fx = null;
-      aboutNode.fy = null;
-      sim.alpha(0.35).restart();
-    }, 2000);
-  }
-
-  setTimeout(() => {
-    const pulseTargetIds = getPulseTargetIds(data.nodes, data.edges);
-    if (pulseTargetIds.length === 0) return;
-
-    const pulseSet = new Set(pulseTargetIds);
-    nodeSel
-      .filter(d => pulseSet.has(d.id))
-      .select('.node-core')
-      .each(function (d) {
-        const baseRadius = NODE_RADII[d.type] || 10;
-        pulseNode(d3.select(this), baseRadius);
-      });
-  }, 1200);
-
-  flyToFn = (nodeId) => {
-    const node = data.nodes.find(n => n.id === nodeId);
-    if (!node) return;
-    const x = node.x || 0, y = node.y || 0;
-    svg.transition().duration(400).ease(d3.easeCubicInOut).call(zoom.transform, d3.zoomIdentity.translate(width / 2 - x, height / 2 - y).scale(1.5));
-    setTimeout(() => openBuffer(node), 420);
-  };
-
-
-  window.addEventListener('resize', () => { sim.force('center', d3.forceCenter(innerWidth / 2, innerHeight / 2)); sim.alpha(0.3).restart(); });
-}
-
-(async () => {
-  const container = document.getElementById('graph-container');
-  if (!container) return;
-  try {
-    const res = await fetch('/graph.json');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    setupOnboardingHint();
-    mountGraph(container, data);
-
-    const searchTrigger = document.getElementById('search-trigger');
-    if (searchTrigger) {
-      searchTrigger.addEventListener('click', () => {
-        triggerSearch();
-      });
+        setTimeout(() => {
+            hintEl.style.display = "none";
+        }, 6400);
     }
 
-    const langEnBtn = document.getElementById('lang-en');
-    const langPtBtn = document.getElementById('lang-pt');
-    langEnBtn?.addEventListener('click', () => setLanguage('en'));
-    langPtBtn?.addEventListener('click', () => setLanguage('pt'));
+    function pulseNode(selection, baseRadius) {
+        let count = 0;
+        function doPulse() {
+            if (count >= 3) return;
+            count++;
+            selection
+                .transition()
+                .duration(500)
+                .ease(d3.easeSinInOut)
+                .attr("r", baseRadius * 1.35)
+                .style("opacity", 0.7)
+                .transition()
+                .duration(500)
+                .ease(d3.easeSinInOut)
+                .attr("r", baseRadius)
+                .style("opacity", 1)
+                .on("end", doPulse);
+        }
+        doPulse();
+    }
 
-    applyLanguageUI();
-    console.log('Graph loaded: ' + data.nodes.length + ' nodes, ' + data.edges.length + ' edges');
-  } catch (e) {
-    console.error('Graph load:', e);
-  }
-})();
+    function getPulseTargetIds(nodes, edges) {
+        const aboutOrHome = nodes.find(
+            (n) => n.type === "about" || n.type === "home",
+        );
+        if (aboutOrHome) return [aboutOrHome.id];
+
+        const degreeById = new Map();
+        nodes.forEach((n) => degreeById.set(n.id, 0));
+        edges.forEach((e) => {
+            const sourceId =
+                typeof e.source === "string" ? e.source : e.source.id;
+            const targetId =
+                typeof e.target === "string" ? e.target : e.target.id;
+            degreeById.set(sourceId, (degreeById.get(sourceId) || 0) + 1);
+            degreeById.set(targetId, (degreeById.get(targetId) || 0) + 1);
+        });
+
+        const projectNodes = nodes.filter((n) => n.type === "project");
+        if (projectNodes.length === 0) return [];
+
+        let mostConnectedProject = projectNodes[0];
+        let maxDegree = degreeById.get(mostConnectedProject.id) || 0;
+        for (const node of projectNodes) {
+            const degree = degreeById.get(node.id) || 0;
+            if (degree > maxDegree) {
+                mostConnectedProject = node;
+                maxDegree = degree;
+            }
+        }
+        return [mostConnectedProject.id];
+    }
+
+    function mountGraph(container, data) {
+        if (data.nodes.length === 0) {
+            container.innerHTML =
+                '<p style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--text-dim);font-family:var(--font-mono)">No graph data. Add .md files to content/ and rebuild.</p>';
+            return;
+        }
+
+        allNodes = data.nodes;
+        renderSimpleMode(allNodes);
+        const width = innerWidth,
+            height = innerHeight;
+
+        const tooltip = document.createElement("div");
+        tooltip.className = "graph-tooltip";
+        document.body.appendChild(tooltip);
+
+        const svg = d3
+            .select(container)
+            .append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%");
+        const defs = svg.append("defs");
+        const socialGlow = defs
+            .append("filter")
+            .attr("id", "social-glow")
+            .attr("x", "-250%")
+            .attr("y", "-250%")
+            .attr("width", "600%")
+            .attr("height", "600%");
+        socialGlow
+            .append("feGaussianBlur")
+            .attr("stdDeviation", "3")
+            .attr("result", "coloredBlur");
+        const socialGlowMerge = socialGlow.append("feMerge");
+        socialGlowMerge.append("feMergeNode").attr("in", "coloredBlur");
+        socialGlowMerge.append("feMergeNode").attr("in", "SourceGraphic");
+
+        const g = svg.append("g");
+        const zoom = d3
+            .zoom()
+            .scaleExtent([0.3, 3])
+            .on("zoom", (ev) => g.attr("transform", ev.transform));
+        svg.call(zoom);
+
+        const edgesSel = g
+            .append("g")
+            .attr("class", "edges")
+            .selectAll("line")
+            .data(data.edges)
+            .join("line")
+            .attr("stroke", "#696969")
+            .attr("stroke-opacity", 0.4)
+            .attr("stroke-width", 1);
+
+        const nodeSel = g
+            .append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(data.nodes)
+            .join("g")
+            .attr("cursor", "pointer");
+        activeNodeSelection = nodeSel;
+        nodeSel
+            .append("circle")
+            .attr("class", "node-core")
+            .attr("r", (d) => NODE_RADII[d.type] || 10)
+            .attr("fill", (d) => NODE_COLORS[d.type] || "#009F6B")
+            .attr("stroke", "rgba(198,198,196,0.2)")
+            .attr("stroke-width", 1)
+            .attr("filter", (d) =>
+                d.type === "social" ? "url(#social-glow)" : null,
+            );
+        nodeSel
+            .filter((d) => d.type === "about")
+            .append("circle")
+            .attr("class", "about-ring")
+            .attr("r", (d) => (NODE_RADII[d.type] || 10) + 6)
+            .attr("fill", "none")
+            .attr("stroke", "#f5f5f0")
+            .attr("stroke-opacity", 0.3)
+            .attr("stroke-width", 1);
+        nodeSel
+            .append("text")
+            .text((d) => {
+                const title = getNodeTitle(d);
+                return d.type === "social" ? title + " ↗" : title;
+            })
+            .attr("text-anchor", "middle")
+            .attr(
+                "dy",
+                (d) =>
+                    (NODE_RADII[d.type] || 10) + (d.type === "about" ? 16 : 14),
+            )
+            .attr("fill", "#C6C6C4")
+            .attr("font-size", (d) => {
+                if (d.type === "about") return "13px";
+                const r = NODE_RADII[d.type] || 10;
+                return r >= 18 ? "11px" : r >= 10 ? "9px" : "7px";
+            })
+            .attr("font-weight", (d) => (d.type === "about" ? 700 : 400))
+            .style("font-family", "var(--font-mono)")
+            .attr("pointer-events", "none")
+            .style("text-shadow", "0 0 6px rgba(0,0,0,0.9)");
+
+        const adj = new Map();
+        for (const e of data.edges) {
+            const s = typeof e.source === "string" ? e.source : e.source.id;
+            const t = typeof e.target === "string" ? e.target : e.target.id;
+            if (!adj.has(s)) adj.set(s, new Set());
+            if (!adj.has(t)) adj.set(t, new Set());
+            adj.get(s).add(t);
+            adj.get(t).add(s);
+        }
+
+        nodeSel
+            .on("mouseover", function (ev, d) {
+                const c = adj.get(d.id) || new Set();
+                const nodeColor = NODE_COLORS[d.type] || "#696969";
+                const metaLine = d.year
+                    ? toLabelType(d.type) + " · " + d.year
+                    : toLabelType(d.type);
+                const localizedDesc = getNodeDescription(d);
+                const descLine = localizedDesc
+                    ? '<span class="tooltip-desc">"' +
+                      escapeHtml(localizedDesc) +
+                      '"</span>'
+                    : "";
+
+                d3.select(this)
+                    .select(".node-core")
+                    .transition()
+                    .duration(100)
+                    .attr("transform", "scale(1.6)");
+
+                tooltip.innerHTML =
+                    '<span class="tooltip-title">' +
+                    escapeHtml(getNodeTitle(d)) +
+                    "</span>" +
+                    '<span class="tooltip-meta" style="color:' +
+                    nodeColor +
+                    '">' +
+                    metaLine +
+                    "</span>" +
+                    descLine;
+                tooltip.style.borderLeftColor = nodeColor;
+                tooltip.style.left = ev.pageX + 12 + "px";
+                tooltip.style.top = ev.pageY - 12 + "px";
+                tooltip.classList.add("visible");
+
+                nodeSel
+                    .transition()
+                    .duration(100)
+                    .attr("opacity", (n) =>
+                        n.id === d.id || c.has(n.id) ? 1 : 0.15,
+                    );
+                edgesSel
+                    .transition()
+                    .duration(100)
+                    .attr("stroke-opacity", (e) => {
+                        const s =
+                            typeof e.source === "string"
+                                ? e.source
+                                : e.source.id;
+                        const t =
+                            typeof e.target === "string"
+                                ? e.target
+                                : e.target.id;
+                        return s === d.id || t === d.id ? 1 : 0.06;
+                    })
+                    .attr("stroke", (e) => {
+                        const s =
+                            typeof e.source === "string"
+                                ? e.source
+                                : e.source.id;
+                        const t =
+                            typeof e.target === "string"
+                                ? e.target
+                                : e.target.id;
+                        return s === d.id || t === d.id ? nodeColor : "#696969";
+                    });
+            })
+            .on("mousemove", function (ev) {
+                tooltip.style.left = ev.pageX + 12 + "px";
+                tooltip.style.top = ev.pageY - 12 + "px";
+            })
+            .on("mouseout", function () {
+                d3.select(this)
+                    .select(".node-core")
+                    .transition()
+                    .duration(200)
+                    .attr("transform", "scale(1)");
+                tooltip.classList.remove("visible");
+                nodeSel.transition().duration(200).attr("opacity", 1);
+                edgesSel
+                    .transition()
+                    .duration(200)
+                    .attr("stroke-opacity", 0.4)
+                    .attr("stroke", "#696969");
+            })
+            .on("click", function (ev, d) {
+                ev.stopPropagation();
+                if (d.type === "social" && d.url) {
+                    window.open(d.url, "_blank", "noopener,noreferrer");
+                    return;
+                }
+                openBuffer(d);
+            });
+
+        const drag = d3
+            .drag()
+            .on("start", function (ev, d) {
+                if (!ev.active) sim.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            })
+            .on("drag", function (ev, d) {
+                d.fx = ev.x;
+                d.fy = ev.y;
+            })
+            .on("end", function (ev, d) {
+                if (!ev.active) sim.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            });
+        nodeSel.call(drag);
+
+        const aboutNode = data.nodes.find((n) => n.type === "about");
+        if (aboutNode) {
+            aboutNode.fx = width / 2;
+            aboutNode.fy = height / 2;
+        }
+
+        const sim = d3
+            .forceSimulation(data.nodes)
+            .force("charge", d3.forceManyBody().strength(-200))
+            .force(
+                "link",
+                d3
+                    .forceLink(data.edges)
+                    .id((d) => d.id)
+                    .distance(80),
+            )
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force(
+                "collide",
+                d3.forceCollide().radius((d) => (NODE_RADII[d.type] || 10) + 4),
+            )
+            .on("tick", () => {
+                edgesSel
+                    .attr("x1", (e) => e.source.x)
+                    .attr("y1", (e) => e.source.y)
+                    .attr("x2", (e) => e.target.x)
+                    .attr("y2", (e) => e.target.y);
+                nodeSel.attr(
+                    "transform",
+                    (d) => "translate(" + (d.x || 0) + "," + (d.y || 0) + ")",
+                );
+            });
+        sim.alpha(1).restart();
+
+        if (aboutNode) {
+            setTimeout(() => {
+                aboutNode.fx = null;
+                aboutNode.fy = null;
+                sim.alpha(0.35).restart();
+            }, 2000);
+        }
+
+        setTimeout(() => {
+            const pulseTargetIds = getPulseTargetIds(data.nodes, data.edges);
+            if (pulseTargetIds.length === 0) return;
+
+            const pulseSet = new Set(pulseTargetIds);
+            nodeSel
+                .filter((d) => pulseSet.has(d.id))
+                .select(".node-core")
+                .each(function (d) {
+                    const baseRadius = NODE_RADII[d.type] || 10;
+                    pulseNode(d3.select(this), baseRadius);
+                });
+        }, 1200);
+
+        flyToFn = (nodeId) => {
+            const node = data.nodes.find((n) => n.id === nodeId);
+            if (!node) return;
+            const x = node.x || 0,
+                y = node.y || 0;
+            svg.transition()
+                .duration(400)
+                .ease(d3.easeCubicInOut)
+                .call(
+                    zoom.transform,
+                    d3.zoomIdentity
+                        .translate(width / 2 - x, height / 2 - y)
+                        .scale(1.5),
+                );
+            setTimeout(() => openBuffer(node), 420);
+        };
+
+        window.addEventListener("resize", () => {
+            sim.force(
+                "center",
+                d3.forceCenter(innerWidth / 2, innerHeight / 2),
+            );
+            sim.alpha(0.3).restart();
+        });
+    }
+
+    (async () => {
+        const container = document.getElementById("graph-container");
+        if (!container) return;
+        try {
+            const res = await fetch("/graph.json");
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const data = await res.json();
+            setupOnboardingHint();
+            mountGraph(container, data);
+
+            const searchTrigger = document.getElementById("search-trigger");
+            if (searchTrigger) {
+                searchTrigger.addEventListener("click", () => {
+                    triggerSearch();
+                });
+            }
+
+            const langEnBtn = document.getElementById("lang-en");
+            const langPtBtn = document.getElementById("lang-pt");
+            const viewToggleBtn = document.getElementById("view-toggle");
+            const graphHintBtn = document.getElementById("graph-mode-hint");
+            langEnBtn?.addEventListener("click", () => setLanguage("en"));
+            langPtBtn?.addEventListener("click", () => setLanguage("pt"));
+            viewToggleBtn?.addEventListener("click", toggleViewMode);
+            graphHintBtn?.addEventListener("click", () => {
+                if (currentViewMode !== "graph") {
+                    currentViewMode = "graph";
+                    showGraphNudge = false;
+                    localStorage.setItem(HAS_TRIED_GRAPH_KEY, "1");
+                    localStorage.setItem(VIEW_KEY, currentViewMode);
+                    closeSearch();
+                    closeBuffer();
+                    applyViewMode();
+                }
+            });
+
+            applyLanguageUI();
+            applyViewMode();
+            localStorage.setItem(HAS_VISITED_KEY, "1");
+            console.log(
+                "Graph loaded: " +
+                    data.nodes.length +
+                    " nodes, " +
+                    data.edges.length +
+                    " edges",
+            );
+        } catch (e) {
+            console.error("Graph load:", e);
+        }
+    })();
 </script>

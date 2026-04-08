@@ -7,5 +7,3 @@ url: https://github.com/vicenzorm
 # GitHub
 
 My code repositories, experiments, and open-source work.
-
-[[About]]

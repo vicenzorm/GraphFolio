@@ -3,6 +3,15 @@ import path from 'node:path';
 import fg from 'fast-glob';
 import matter from 'gray-matter';
 
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const ROOT = process.cwd();
 const CONTENT_DIR = path.join(ROOT, 'content');
 const OUT_FILE = path.join(ROOT, 'public/graph.json');
@@ -19,7 +28,7 @@ async function buildGraph() {
   const files = await fg('**/*.md', {
     cwd: CONTENT_DIR,
     absolute: true,
-    ignore: ['templates/**', '**/_TEMPLATE-*.md', '**/*TEMPLATE*.md'],
+    ignore: ['templates/**', '**/_TEMPLATE-*.md', '**/*TEMPLATE*.md', '**/*.pt.md'],
   });
 
   if (files.length === 0) {
@@ -59,6 +68,18 @@ async function buildGraph() {
     const url = typeof parsed.data.url === 'string' ? parsed.data.url.trim() : '';
     const body = parsed.content.trim();
 
+    const ptFile = file.replace(/\.md$/i, '.pt.md');
+    let titlePt = '';
+    let descriptionPt = '';
+    let bodyPt = '';
+    if (await fileExists(ptFile)) {
+      const rawPt = await fs.readFile(ptFile, 'utf-8');
+      const parsedPt = matter(rawPt);
+      titlePt = String(parsedPt.data.title ?? '').trim();
+      descriptionPt = String(parsedPt.data.description ?? '').trim();
+      bodyPt = parsedPt.content.trim();
+    }
+
     // Extract wikilinks from body
     const linkTargets = new Set();
     let match;
@@ -69,6 +90,9 @@ async function buildGraph() {
 
     const node = {
       id, title, type, year, description, url, body,
+      title_pt: titlePt,
+      description_pt: descriptionPt,
+      body_pt: bodyPt,
       _linkTargets: Array.from(linkTargets),
     };
 
