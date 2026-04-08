@@ -457,9 +457,6 @@ import "../styles/components.css";
             '<a href="#simple-about">' +
             t("simpleNavAbout") +
             "</a>" +
-            '<a href="#simple-featured">' +
-            t("simpleNavFeatured") +
-            "</a>" +
             '<a href="#simple-contact">' +
             t("simpleNavContact") +
             "</a>" +
@@ -478,14 +475,6 @@ import "../styles/components.css";
             t("simpleNavAbout") +
             "</h3>" +
             (about ? card(about) : "") +
-            "</section>" +
-            '<section id="simple-featured" class="simple-section">' +
-            "<h3>" +
-            t("simpleNavFeatured") +
-            "</h3>" +
-            '<div class="simple-grid">' +
-            featured.map((n) => card(n)).join("") +
-            "</div>" +
             "</section>" +
             '<section id="simple-contact" class="simple-section">' +
             "<h3>" +
