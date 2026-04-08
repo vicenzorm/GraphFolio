@@ -26,9 +26,9 @@ Modern mobile games often lack the tactile and nostalgic feel of classic arcade 
 ## Tech used (short list)
 - [[SpriteKit]] (Physics engine & 2D Rendering)
 - [[GameplayKit]] (State Machines for character behaviors)
-- [[SwiftUI]] (Virtual console UI & MVVM bridging)
+- [[SwiftUI]] 
 - [[GameKit]] (Leaderboards & Authentication)
-- [[CoreHaptics]] & AVFoundation (Audio and tactile feedback)
+- [[CoreHaptics]] (Tactile feedback)
 
 ## Links
 - https://apps.apple.com/us/app/shiro/id6752502968

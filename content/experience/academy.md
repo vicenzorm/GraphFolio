@@ -18,9 +18,8 @@ description: "Challenge-Based Learning environment focusing on end-to-end iOS ap
 
 ## Projects delivered
 - [[Shiro]]
-- [[Zenith: The Endless Tower]]
+- [[Zenith]]
 - [[Glyptis]]
-- [[Cartridge]]
 - [[SafeCons]]
 
 ## Skills demonstrated

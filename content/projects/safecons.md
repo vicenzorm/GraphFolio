@@ -9,7 +9,7 @@ description: "An offline-first, zero-knowledge iOS messaging app built for extre
 Standard messaging apps rely on centralized servers, phone numbers, and internet connectivity, making them vulnerable to data breaches and censorship. SafeCons solves this by providing a secure, 100% offline communication channel. It is designed for privacy-critical local meetings or off-grid environments, ensuring cryptographic keys never leave the device unless explicitly shared in person.
 
 ## What was my role?
-- Role title: Creator & Lead iOS Developer
+- Role title: Creator & iOS Developer
 - Team size: 1
 - Scope owned: End-to-end development, including Cryptography, BLE Networking architecture, local persistence, and UI/UX.
 
@@ -27,7 +27,7 @@ Standard messaging apps rely on centralized servers, phone numbers, and internet
 - [[CoreBluetooth]] (BLE Mesh & MTU Chunking)
 - [[CryptoKit]] & Security (P256, AES-GCM, Keychain)
 - [[SwiftData]] (Zero-knowledge persistence)
-- [[SwiftUI]] & MVVM with Dependency Injection
+- [[SwiftUI]] 
 - [[VisionKit]] (Out-of-band QR exchanges)
 
 ## Links
