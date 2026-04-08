@@ -1,5 +1,6 @@
 ---
 title: "Apple Developer Academy"
+slug: "apple-developer-academy"
 type: experience
 year: "2025 - 2026"
 description: "Challenge-Based Learning environment focusing on end-to-end iOS app development."

@@ -16,7 +16,7 @@ tangible object—minimalist, intentional, and built to last.
 - Terminal-first workflows
 
 ## My experiences
-- [[Apple Developer Academy]]
+- [[Apple Developer Academy]] (2025-2026)
 
 ## Contact
 Find me on [[GitHub]] and [[LinkedIn]].
