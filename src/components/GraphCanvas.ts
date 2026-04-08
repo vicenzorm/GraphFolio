@@ -6,7 +6,6 @@ export interface GraphNode {
   type: string;
   status: string;
   year?: number;
-  tags: string[];
   description: string;
   body: string;
 }

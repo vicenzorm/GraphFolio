@@ -11,7 +11,6 @@ interface GraphNode {
   type: string;
   status: string;
   year?: number;
-  tags: string[];
   description: string;
   body: string;
   x?: number;
@@ -149,7 +148,7 @@ function openOmniSearch(nodes: GraphNode[]): void {
   if (searchVisible) return;
   searchVisible = true; sIdx = 0;
   fuseIdx = new Fuse(nodes, {
-    keys: [{ name: 'title', weight: 0.7 }, { name: 'tags', weight: 0.5 }, { name: 'description', weight: 0.4 }, { name: 'body', weight: 0.2 }],
+    keys: [{ name: 'title', weight: 0.7 }, { name: 'description', weight: 0.4 }, { name: 'body', weight: 0.2 }],
     threshold: 0.35,
   });
   sResults = nodes.slice(0, 15);

@@ -1,18 +1,21 @@
 ---
-title: "Astro"
+title: "Swift"
 type: technology
 status: active
-tags: [framework, static, web]
-description: Static-first web framework. Markdown-native.
+description: "Core language I use to build performant and maintainable Apple apps."
 ---
-# Astro
+# Swift
 
-Framework of choice for static sites. Powers [[Graph Folio]].
+## Why I use it
+Swift lets me deliver Apple apps faster with safer code, fewer runtime issues, and better long-term maintainability.
 
-Follows [[Unix Philosophy]] — does one thing well.
+## Proven outcomes
+- Faster feature delivery with native tooling and strong language ergonomics
+- Fewer regressions with type safety and modern concurrency
+- Cleaner handoff with readable architecture and conventions
 
-## Key Principles
+## Level of proficiency
+- Advanced
 
-- Content collections instead of file-system routing
-- Island architecture — ship zero JS by default
-- Integrations for React, Vue, Svelte when needed
+## Notes
+Core language behind my Apple development work.

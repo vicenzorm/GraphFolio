@@ -2,13 +2,20 @@
 title: "TypeScript"
 type: technology
 status: active
-tags: [language, frontend, backend]
-description: Typed superset of JavaScript.
+description: "Typed superset of JavaScript for safer, scalable web codebases."
 ---
 # TypeScript
 
-Primary language for all web projects. Used in [[Graph Folio]].
+## Why I use it
+TypeScript improves code safety and predictability, especially in medium and large projects.
 
-- Strong typing at scale
-- Excellent tooling ecosystem
-- Compiles to clean JavaScript
+## Proven outcomes
+- Fewer runtime errors in production flows
+- Faster refactoring with stronger type guarantees
+- Better maintainability across growing codebases
+
+## Level of proficiency
+- Advanced
+
+## Notes
+Safer JavaScript for long-term maintainable products.

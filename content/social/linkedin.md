@@ -1,8 +1,6 @@
 ---
 title: LinkedIn
 type: social
-year: 2026
-tags: [social, professional, networking]
 description: Professional profile and career updates.
 url: https://www.linkedin.com/in/vicenzomasera/
 ---

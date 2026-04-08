@@ -2,17 +2,20 @@
 title: "Astro"
 type: technology
 status: active
-tags: [framework, static, web]
-description: Static-first web framework. Markdown-native.
+description: "Static-first framework for fast, content-driven websites."
 ---
 # Astro
 
-Framework of choice for static sites. Powers [[Graph Folio]].
+## Why I use it
+Astro helps me ship content-heavy websites quickly with strong performance by default.
 
-Follows [[Unix Philosophy]] — does one thing well.
+## Proven outcomes
+- Faster delivery of static and hybrid pages
+- Lower JS payloads and better perceived performance
+- Cleaner content workflows with markdown support
 
-## Key Principles
+## Level of proficiency
+- Advanced
 
-- Content collections instead of file-system routing
-- Island architecture — ship zero JS by default
-- Integrations for React, Vue, Svelte when needed
+## Notes
+Fast, lightweight framework for content-first web projects.

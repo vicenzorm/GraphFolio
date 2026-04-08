@@ -2,8 +2,7 @@
 title: "Apple Developer Academy"
 type: experience
 status: active
-year: 2026
-tags: [leadership, delivery, ios, swift]
+year: "2025 - 2026"
 description: "Challenge-Based Learning environment focusing on end-to-end iOS app development."
 ---
 # Apple Developer Academy

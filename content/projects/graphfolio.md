@@ -1,9 +1,7 @@
 ---
-title: "Graph Folio"
+title: "GraphFolio"
 type: project
 status: active
-year: 2025
-tags: [astro, d3, typescript]
 description: This very site — a knowledge graph portfolio.
 ---
 # Graph Folio

@@ -4,7 +4,6 @@ export interface SearchNode {
   id: string;
   title: string;
   type: string;
-  tags: string[];
   description: string;
   body: string;
 }
@@ -69,7 +68,6 @@ function open(nodes: SearchNode[]) {
   fuse = new Fuse(nodes, {
     keys: [
       { name: 'title', weight: 0.7 },
-      { name: 'tags', weight: 0.5 },
       { name: 'description', weight: 0.4 },
       { name: 'body', weight: 0.2 },
     ],

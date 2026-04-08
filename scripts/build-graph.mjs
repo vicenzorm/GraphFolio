@@ -62,7 +62,6 @@ async function buildGraph() {
 
     const status = parsed.data.status ?? 'active';
     const year = parsed.data.year;
-    const tags = Array.isArray(parsed.data.tags) ? parsed.data.tags : [];
     const description = parsed.data.description ?? '';
     const url = typeof parsed.data.url === 'string' ? parsed.data.url.trim() : '';
     const body = parsed.content.trim();
@@ -75,10 +74,8 @@ async function buildGraph() {
       linkTargets.add(normalizeId(match[1]));
     }
 
-    // Tags are metadata only — edges come solely from actual wikilinks
-
     const node = {
-      id, title, type, status, year, tags, description, url, body,
+      id, title, type, status, year, description, url, body,
       _linkTargets: Array.from(linkTargets),
     };
 
