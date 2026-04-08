@@ -3,7 +3,7 @@ title: About
 type: about
 description: Start here — who I am and what I do.
 ---
-# Hi, I'm Vicenzo Másera
+# Hi, I'm Vicenzo Masera
 
 Software Engineering student and iOS developer focused on native Apple experiences.
 
@@ -14,13 +14,9 @@ Software Engineering student and iOS developer focused on native Apple experienc
 - Biggest differentiator: Native-first solutions with clean architecture
 
 ## What I do
-- iOS Development
+- iOS Development [[Swift]]
 - Open source contributor & Homebrew formula maintainer
 - Terminal-first workflows
-
-
-## Projects
-- [[Personal Projects]]
 
 ## My experiences
 - [[Apple Developer Academy]] (2025-2026)
