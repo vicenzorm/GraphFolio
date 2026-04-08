@@ -1,6 +1,6 @@
 ---
 title: "Personal Projects"
-type: concept
+type: personal-project
 description: "Independent projects built end-to-end to explore product ideas and technical depth."
 ---
 # Personal Projects

@@ -34,6 +34,7 @@ import '../styles/components.css';
         <ul>
           <li><span class="legend-dot legend-project"></span><span id="legend-project">Project</span></li>
           <li><span class="legend-dot legend-featured"></span><span id="legend-featured">Featured</span><span id="legend-featured-note" class="legend-annotation">← highlighted work</span></li>
+          <li><span class="legend-dot legend-personal-project"></span><span id="legend-personal-project">Personal Projects</span></li>
           <li><span class="legend-dot legend-technology"></span><span id="legend-technology">Technology</span></li>
           <li><span class="legend-dot legend-social"></span><span id="legend-social">Social</span><span id="legend-social-note" class="legend-annotation">← external links</span></li>
           <li><span class="legend-dot legend-about"></span><span id="legend-about">About</span><span id="legend-about-note" class="legend-annotation">← start here</span></li>
@@ -60,8 +61,8 @@ import * as d3 from 'd3';
 import Fuse from 'fuse.js';
 import { parse as markedParse } from 'marked';
 
-const NODE_COLORS = { project: '#0087BD', featured: '#FF6B00', technology: '#009F6B', concept: '#FFD700', social: '#FF1493', experience: '#C40233', about: '#f5f5f0' };
-const NODE_RADII = { project: 18, featured: 20, technology: 10, concept: 7, social: 9, experience: 12, about: 18 };
+const NODE_COLORS = { project: '#0087BD', featured: '#FF6B00', 'personal-project': '#FFC300', technology: '#009F6B', social: '#FF1493', experience: '#C40233', about: '#f5f5f0' };
+const NODE_RADII = { project: 18, featured: 20, 'personal-project': 24, technology: 10, social: 9, experience: 12, about: 18 };
 const LANG_KEY = 'graphfolio-lang';
 const UI_STRINGS = {
   en: {
@@ -72,6 +73,7 @@ const UI_STRINGS = {
     featured: 'Featured',
     featuredNote: '← highlighted work',
     technology: 'Technology',
+    personalProject: 'Personal Projects',
     social: 'Social',
     socialNote: '← external links',
     about: 'About',
@@ -92,6 +94,7 @@ const UI_STRINGS = {
     featured: 'Destaque',
     featuredNote: '← trabalho em destaque',
     technology: 'Tecnologia',
+    personalProject: 'Projetos Pessoais',
     social: 'Social',
     socialNote: '← links externos',
     about: 'Sobre',
@@ -190,6 +193,7 @@ function applyLanguageUI() {
     ['legend-project', ui.project],
     ['legend-featured', ui.featured],
     ['legend-featured-note', ui.featuredNote],
+    ['legend-personal-project', ui.personalProject],
     ['legend-technology', ui.technology],
     ['legend-social', ui.social],
     ['legend-social-note', ui.socialNote],
