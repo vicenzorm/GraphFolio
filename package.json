@@ -7,9 +7,12 @@
     "dev": "npm run graph:build && astro dev",
     "graph:build": "node scripts/build-graph.mjs",
     "build": "npm run graph:build && astro build",
-    "preview": "astro preview"
+    "preview": "npm run build && wrangler dev",
+    "deploy": "npm run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "12",
     "astro": "^5.7.0",
     "d3": "^7.9.0",
     "fuse.js": "^7.0.0",
@@ -17,6 +20,7 @@
     "marked": "^17.0.6"
   },
   "devDependencies": {
-    "fast-glob": "^3.3.3"
+    "fast-glob": "^3.3.3",
+    "wrangler": "^4.81.0"
   }
 }
