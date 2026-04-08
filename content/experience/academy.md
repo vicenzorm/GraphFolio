@@ -21,7 +21,7 @@ description: "Challenge-Based Learning environment focusing on end-to-end iOS ap
 - [[Zenith: The Endless Tower]]
 - [[Glyptis]]
 - [[Cartridge]]
-- [[NeuroReset]]
+- [[SafeCons]]
 
 ## Skills demonstrated
 - Software Architecture (MVVM, MVC, MV, ECS)
