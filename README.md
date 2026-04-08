@@ -185,8 +185,3 @@ npm run preview
 - Warning about `src/content/nodes/` from Astro glob loader
   - Non-blocking for this graph pipeline; current graph build still works.
 
----
-
-## License
-
-MIT
