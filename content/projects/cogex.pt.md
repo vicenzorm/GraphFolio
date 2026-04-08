@@ -30,10 +30,11 @@ Resolveu dois problemas recorrentes no fluxo com Git: mensagens vagas (ex.: `git
 - Communication and delivery model: Distribuição open source sob MIT e instalação simplificada via Homebrew (`brew tap vicenzorm/tools && brew install cogex`).
 
 ## Tech used (short list)
-- [[Shell Script (Bash)]]
-- [[Ollama]] (LLMs Locais)
+- [[Bash]]
+- [[Ollama]]
 - [[Git]]
-- [[jq]] e [[curl]]
+- [[jq]]
+- [[curl]]
 
 ## Category
 - [[Personal Projects]]
