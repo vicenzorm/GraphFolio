@@ -22,7 +22,7 @@ Zenith solves the complexity of scaling action-heavy roguelike systems by using 
 - Integrated GameKit leaderboard flow
 - Implemented custom joystick/input logic for gameplay precision
 
-## Business impact (most important)
+## Business impact 
 - Architecture: Lower coupling and better long-term maintainability
 - Scalability: Dynamic wave system with reduced manual balancing cost
 - Engagement: Competitive loop with high-score and leaderboard mechanics
