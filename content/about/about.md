@@ -15,5 +15,8 @@ tangible object—minimalist, intentional, and built to last.
 - Open source contributor & maintaining Homebrew formulae
 - Terminal-first workflows
 
+## My experiences
+- [[Apple Developer Academy]]
+
 ## Contact
 Find me on [[GitHub]] and [[LinkedIn]].
