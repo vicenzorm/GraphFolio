@@ -22,7 +22,7 @@ Shiro recreates the feel of classic portable arcade games with modern iOS perfor
 - Integrated GameKit leaderboards and authentication flow
 - Built tactile/audio feedback systems for stronger game feel
 
-## Business impact (most important)
+## Business impact 
 - Engagement: Native leaderboard loop to increase replay value
 - Performance: Stable rendering under action-heavy scenes
 - Code quality: Modular game structure for easier extension
@@ -32,7 +32,7 @@ Shiro recreates the feel of classic portable arcade games with modern iOS perfor
 - Trade-offs: Chose native Apple stack over cross-platform engines for tighter integration
 - Delivery model: Modular architecture across states, nodes, and UI layers
 
-## Tech used
+## Tech useds
 - [[SpriteKit]]
 - [[GameplayKit]]
 - [[SwiftUI]]
