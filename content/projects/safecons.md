@@ -25,7 +25,7 @@ Most messaging apps depend on internet and centralized servers. SafeCons enables
 - Designed QR-based out-of-band key exchange to reduce MITM risk
 - Delivered the full app architecture and interface end-to-end
 
-## Business impact (most important)
+## Business impact
 - Security: Removed dependence on central servers for message transport
 - Connectivity: Enabled fully offline local messaging via BLE
 - Risk mitigation: Added replay protection and safer key exchange flow
