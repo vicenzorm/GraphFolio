@@ -5,7 +5,7 @@ description: "Retro-inspired iOS arcade game with native rendering and tactile f
 ---
 # Shiro
 
-## App Store (priority)
+## App Store 
 - https://apps.apple.com/us/app/shiro/id6752502968
 
 ## What problem did this solve?

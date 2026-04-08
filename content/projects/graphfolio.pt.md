@@ -4,9 +4,6 @@ description: "Portfólio em grafo interativo em que cada arquivo markdown vira u
 ---
 # GraphFolio
 
-## App Store (prioridade)
-- Não aplicável
-
 ## Qual problema isso resolveu?
 Portfólios tradicionais escondem relações entre projetos e habilidades. GraphFolio torna essas conexões exploráveis em um mapa visual único.
 

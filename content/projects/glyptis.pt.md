@@ -4,7 +4,7 @@ description: "App de AR para criar e posicionar esculturas em voxel no mundo rea
 ---
 # Glyptis
 
-## App Store (prioridade)
+## App Store
 - https://apps.apple.com/us/app/glyptis-realidade-esculpida/id6755839447
 
 ## Qual problema isso resolveu?

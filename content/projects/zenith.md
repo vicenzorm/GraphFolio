@@ -5,7 +5,7 @@ description: "Top-down iOS roguelike built with scalable ECS architecture."
 ---
 # Zenith: The Endless Tower
 
-## App Store (priority)
+## App Store
 - Not published yet
 
 ## What problem did this solve?

@@ -5,7 +5,7 @@ description: "Offline-first private messenger for secure local communication ove
 ---
 # SafeCons
 
-## App Store (priority)
+## App Store
 - Not published yet
 
 ## Why this is featured

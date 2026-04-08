@@ -5,9 +5,6 @@ description: "Interactive graph portfolio where every markdown file becomes a no
 ---
 # GraphFolio
 
-## App Store (priority)
-- Not applicable
-
 ## What problem did this solve?
 Traditional portfolios hide relationships between projects and skills. GraphFolio makes those connections explorable in one visual map.
 

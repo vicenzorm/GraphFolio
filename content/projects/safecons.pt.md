@@ -4,7 +4,7 @@ description: "Mensageiro privado offline-first para comunicação local segura v
 ---
 # SafeCons
 
-## App Store (prioridade)
+## App Store
 - Ainda não publicado
 
 ## Por que este projeto está em destaque

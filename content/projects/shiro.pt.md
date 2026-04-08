@@ -4,7 +4,7 @@ description: "Jogo arcade iOS com estética retrô, renderização nativa e feed
 ---
 # Shiro
 
-## App Store (prioridade)
+## App Store 
 - https://apps.apple.com/us/app/shiro/id6752502968
 
 ## Qual problema isso resolveu?
