@@ -19,6 +19,9 @@ Software Engineering student and iOS developer focused on native Apple experienc
 - Terminal-first workflows
 
 
+## Projects
+- [[Personal Projects]]
+
 ## My experiences
 - [[Apple Developer Academy]] (2025-2026)
 
