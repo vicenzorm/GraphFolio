@@ -5,7 +5,7 @@ description: "Projetos independentes construídos de ponta a ponta para explorar
 # Projetos Pessoais
 
 ## Por que este nodo existe
-Este nodo agrupa projetos que eu concebi e desenvolvi com alto grau de ownership em produto, arquitetura e implementação.
+Este nodo agrupa projetos que eu concebi e desenvolvi com alto grau de ownership em produto, arquitetura e implementação. Para contexto completo de perfil, veja [[Sobre]].
 
 ## Meus projetos
 - [[SafeCons]]

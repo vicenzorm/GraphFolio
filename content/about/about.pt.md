@@ -20,6 +20,9 @@ Estudante de Engenharia de Software e desenvolvedor iOS focado em experiências 
 ## Minhas experiências
 - [[Apple Developer Academy]] (2025-2026)
 
+## Meus projetos
+- [[Projetos Pessoais]]
+
 ## Contato
 - LinkedIn: [[LinkedIn]]
 - GitHub: [[GitHub]]

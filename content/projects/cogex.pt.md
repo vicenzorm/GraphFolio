@@ -1,32 +1,33 @@
 ---
 title: "CogeX"
 type: project
-description: "Uma ferramenta CLI minimalista com IA local que gera mensagens de commit convencionais e agrupa alterações automaticamente."
+description: "Uma CLI local-first que analisa staged changes, gera Conventional Commits com IA local e pode dividir alterações em commits atómicos por contexto."
 ---
 # CogeX
 
 ## What problem did this solve?
-Resolveu o problema da criação de mensagens de commit genéricas ou pouco descritivas (como o clássico `git commit -m "update"`) e o desafio de separar manualmente alterações de ficheiros em commits adequados. O CogeX elimina a fricção na documentação do código, garantindo que as mensagens seguem o padrão Conventional Commits. Além disso, resolve preocupações de privacidade e latência ao manter o processamento estritamente na máquina local através de modelos de linguagem de pequena dimensão, sem exposição de código proprietário a APIs externas.
+Resolveu dois problemas recorrentes no fluxo com Git: mensagens vagas (ex.: `git commit -m "update"`) e dificuldade de separar alterações não relacionadas em commits limpos. O CogeX automatiza ambas as etapas com IA local, mantendo privacidade total do código e baixa latência, sem dependência de APIs externas.
 
 ## What was my role?
 - Role title: Criador e Desenvolvedor Solo
 - Team size: 1
-- Scope owned: Arquitetura da ferramenta, engenharia de prompts, desenvolvimento integral do script em Bash e integração da CLI com o Git e a API do Ollama.
+- Scope owned: Arquitetura da CLI, engenharia de prompts, implementação do core em Bash e integração com Git + Ollama.
 
 ## What I specifically built
-- Implemented: Um script robusto em Bash puro sem dependências em Python, recorrendo ao `curl` e ao `jq` para orquestrar a comunicação com a IA local. Criei uma funcionalidade de "Smart Splitting" que avalia se as alterações contêm contextos múltiplos e os agrupa em commits atómicos de forma inteligente.
-- Designed: Um fluxo interativo diretamente no terminal que permite aos utilizadores aprovar (`y`), rejeitar (`n`) ou editar (`e`) as mensagens sugeridas de imediato.
-- Optimized: Desempenho ultrarrápido ao configurar a ferramenta para tirar partido nativo de modelos pequenos e ágeis como o `qwen2.5-coder:1.5b`, definindo temperaturas baixas para respostas determinísticas e concisas.
+- Implemented: Ferramenta em shell script puro (sem Python), usando apenas `bash`, `curl` e `jq`, com geração automática de mensagens no padrão Conventional Commits.
+- Designed: Fluxo interativo no terminal para aceitar (`y`), cancelar (`n`) ou editar (`e`) a sugestão no `$EDITOR` antes do commit final.
+- Optimized: Pipeline local-first otimizado para modelos leves e rápidos no Ollama, com default `gemma4:e2b` e suporte a override via `COGEX_MODEL`.
+- Added: Mecanismo de Smart Splitting que detecta contextos distintos nas mudanças staged e agrupa ficheiros por assunto para criar commits atómicos.
 
 ## Business impact (most important)
-- Metric 1: Mensagens desorganizadas → Commits perfeitamente alinhados com a norma Conventional Commits (feat, fix, docs, etc.).
-- Metric 2: 100% de garantia de privacidade de código, eliminando riscos associados a fugas de dados em serviços na nuvem.
-- Metric 3: Aumento substancial da produtividade do programador através da segmentação automatizada (Smart Splitting), poupando tempo na organização de _staging_ complexos.
+- Metric 1: Mensagens de commit mais consistentes e auditáveis, aderentes ao padrão Conventional Commits (`feat`, `fix`, `docs`, etc.).
+- Metric 2: Privacidade de código preservada (processamento 100% local, sem API key e sem envio para cloud).
+- Metric 3: Redução de fricção no fluxo de versionamento com separação semiautomática de alterações em commits focados.
 
 ## How I delivered
-- Key decisions: Aplicação estrita da Filosofia Unix — fazer uma coisa e fazê-la bem. Optei por usar um script simples de shell configurável por variáveis de ambiente (`COGEX_MODEL`, `COGEX_OLLAMA_URL`), em vez de ficheiros de configuração pesados.
-- Trade-offs: Dependência da execução prévia do Ollama em background. Privilegiou-se o processamento sem atritos em detrimento do suporte de base ("out-of-the-box") em ambientes sem requisitos de linha de comandos, mantendo o software extremamente leve.
-- Communication and delivery model: Publicação de código aberto ao abrigo da Licença MIT, com um processo de instalação simples e direito via Homebrew.
+- Key decisions: Aplicação da Filosofia Unix (fazer uma coisa e fazê-la bem), mantendo a solução minimalista e configurável apenas por variáveis de ambiente (`COGEX_MODEL`, `COGEX_OLLAMA_URL`).
+- Trade-offs: Requer Ollama instalado e em execução prévia; em troca, entrega controlo local, simplicidade operacional e dependências mínimas.
+- Communication and delivery model: Distribuição open source sob MIT e instalação simplificada via Homebrew (`brew tap vicenzorm/tools && brew install cogex`).
 
 ## Tech used (short list)
 - [[Shell Script (Bash)]]
@@ -40,4 +41,4 @@ Resolveu o problema da criação de mensagens de commit genéricas ou pouco desc
 
 ## Links
 - Repository: https://github.com/vicenzorm/cogex
-- Demo/Other: Instalação via `brew install cogex`
+- Demo/Other: Instalação via Homebrew + modelo local (`ollama pull gemma4:e2b`)

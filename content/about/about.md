@@ -21,6 +21,9 @@ Software Engineering student and iOS developer focused on native Apple experienc
 ## My experiences
 - [[Apple Developer Academy]] (2025-2026)
 
+## My projects
+- [[Personal Projects]]
+
 ## Contact
 - LinkedIn: [[LinkedIn]]
 - GitHub: [[GitHub]]
