@@ -22,7 +22,7 @@ Traditional portfolios hide relationships between projects and skills. GraphFoli
 - Added guided navigation cues and clearer node affordances
 - Designed content conventions for low-friction updates
 
-## Business impact (most important)
+## Business impact 
 - Discoverability: Faster navigation through skills and projects
 - Maintainability: New content can be shipped by editing markdown only
 - Storytelling: Clear visual narrative of technical depth and domains
