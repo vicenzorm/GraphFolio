@@ -1,7 +1,6 @@
 ---
 title: "CoreData"
 type: technology
-status: active
 description: "Proven Apple persistence framework for robust offline-first and structured data apps."
 ---
 # CoreData

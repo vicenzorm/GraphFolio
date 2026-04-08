@@ -1,7 +1,6 @@
 ---
 title: "SwiftData"
 type: technology
-status: active
 description: "Modern Apple persistence layer that accelerates local data modeling and app iteration."
 ---
 # SwiftData

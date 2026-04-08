@@ -1,7 +1,6 @@
 ---
 title: "SwiftUI"
 type: technology
-status: active
 description: "Apple declarative UI framework for fast iteration and consistent interface delivery."
 ---
 # SwiftUI

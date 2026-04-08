@@ -1,7 +1,6 @@
 ---
 title: "Swift"
 type: technology
-status: active
 description: "Core language I use to build performant and maintainable Apple apps."
 ---
 # Swift

@@ -4,7 +4,6 @@ export interface GraphNode {
   id: string;
   title: string;
   type: string;
-  status: string;
   year?: number;
   description: string;
   body: string;

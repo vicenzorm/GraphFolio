@@ -1,7 +1,6 @@
 ---
 title: "Astro"
 type: technology
-status: active
 description: "Static-first framework for fast, content-driven websites."
 ---
 # Astro

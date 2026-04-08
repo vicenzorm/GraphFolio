@@ -1,7 +1,6 @@
 ---
 title: "GraphFolio"
 type: project
-status: active
 description: This very site — a knowledge graph portfolio.
 ---
 # Graph Folio

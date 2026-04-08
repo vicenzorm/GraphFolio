@@ -1,7 +1,6 @@
 ---
 title: "UIKit"
 type: technology
-status: active
 description: "Battle-tested Apple UI framework for high-control, production-grade iOS interfaces."
 ---
 # UIKit

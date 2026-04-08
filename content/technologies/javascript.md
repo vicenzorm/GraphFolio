@@ -1,7 +1,6 @@
 ---
 title: "JavaScript"
 type: technology
-status: active
 description: "Core web language I use for interactive products and tooling across browser environments."
 ---
 # JavaScript

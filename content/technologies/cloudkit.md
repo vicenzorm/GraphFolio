@@ -1,7 +1,6 @@
 ---
 title: "CloudKit"
 type: technology
-status: active
 description: "Apple cloud backend for secure sync, account-aware data, and multi-device continuity."
 ---
 # CloudKit

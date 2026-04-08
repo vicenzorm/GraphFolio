@@ -59,8 +59,6 @@ async function buildGraph() {
       excludedConceptIds.add(id);
       continue;
     }
-
-    const status = parsed.data.status ?? 'active';
     const year = parsed.data.year;
     const description = parsed.data.description ?? '';
     const url = typeof parsed.data.url === 'string' ? parsed.data.url.trim() : '';
@@ -75,7 +73,7 @@ async function buildGraph() {
     }
 
     const node = {
-      id, title, type, status, year, description, url, body,
+      id, title, type, year, description, url, body,
       _linkTargets: Array.from(linkTargets),
     };
 

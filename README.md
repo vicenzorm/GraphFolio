@@ -66,7 +66,6 @@ Every `.md` file in `content/` becomes a node:
 ---
 title:       My Project
 type:        project          # project | skill | language | concept | social | about
-status:      active           # active | archived | wip
 year:        2025
 tags:        [rust, cli, tui]
 description: One-line summary shown on hover.

@@ -1,7 +1,6 @@
 ---
 title: "CryptoKit"
 type: technology
-status: active
 description: "Apple-native cryptography framework for secure data handling and identity-sensitive workflows."
 ---
 # CryptoKit

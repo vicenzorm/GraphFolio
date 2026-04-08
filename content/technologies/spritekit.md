@@ -1,7 +1,6 @@
 ---
 title: "SpriteKit"
 type: technology
-status: active
 description: "Apple 2D game framework for performant gameplay, animation, and interactive experiences."
 ---
 # SpriteKit

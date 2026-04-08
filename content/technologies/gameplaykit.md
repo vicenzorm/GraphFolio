@@ -1,7 +1,6 @@
 ---
 title: "GameplayKit"
 type: technology
-status: active
 description: "Gameplay systems toolkit for state machines, AI behavior, and scalable game architecture."
 ---
 # GameplayKit

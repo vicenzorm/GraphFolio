@@ -1,7 +1,6 @@
 ---
 title: "CoreBluetooth"
 type: technology
-status: active
 description: "Apple framework for BLE communication with wearables, sensors, and smart peripherals."
 ---
 # CoreBluetooth

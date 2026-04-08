@@ -1,7 +1,6 @@
 ---
 title: "TypeScript"
 type: technology
-status: active
 description: "Typed superset of JavaScript for safer, scalable web codebases."
 ---
 # TypeScript
