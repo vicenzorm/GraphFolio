@@ -84,6 +84,14 @@ import "../styles/components.css";
                     </li>
                 </ul>
             </div>
+            <button
+                id="legend-toggle"
+                type="button"
+                aria-label="Collapse navigation legend"
+                title="Collapse navigation legend"
+            >
+                ‹
+            </button>
         </div>
 
         <div id="hud-right">
@@ -132,6 +140,7 @@ import "../styles/components.css";
                         stroke-width="2"
                         stroke-linecap="round"></path>
                 </svg>
+                <span id="search-trigger-label">Search (Cmd+K)</span>
             </button>
         </div>
     </body>
@@ -256,6 +265,8 @@ import "../styles/components.css";
           : "simple";
     let showGraphNudge =
         !hasVisitedBefore && localStorage.getItem(HAS_TRIED_GRAPH_KEY) !== "1";
+    let legendCollapsed = window.innerWidth <= 600;
+
     let flyToFn = null,
         allNodes = [],
         bufferVisible = false,
@@ -631,6 +642,8 @@ import "../styles/components.css";
         if (searchTrigger) {
             searchTrigger.setAttribute("title", ui.searchTitle);
             searchTrigger.setAttribute("aria-label", ui.searchTitle);
+            const searchLabel = document.getElementById("search-trigger-label");
+            if (searchLabel) searchLabel.textContent = ui.searchTitle;
         }
 
         const graphHintBtn = document.getElementById("graph-mode-hint");
@@ -667,6 +680,25 @@ import "../styles/components.css";
         currentLang = lang;
         localStorage.setItem(LANG_KEY, lang);
         applyLanguageUI();
+    }
+
+    function applyLegendState() {
+        const hudLeft = document.getElementById("hud-left");
+        const legendToggle = document.getElementById("legend-toggle");
+        if (!hudLeft || !legendToggle) return;
+
+        hudLeft.classList.toggle("collapsed", legendCollapsed);
+        legendToggle.textContent = legendCollapsed ? "›" : "‹";
+        const label = legendCollapsed
+            ? "Expand navigation legend"
+            : "Collapse navigation legend";
+        legendToggle.setAttribute("aria-label", label);
+        legendToggle.setAttribute("title", label);
+    }
+
+    function toggleLegend() {
+        legendCollapsed = !legendCollapsed;
+        applyLegendState();
     }
 
     function applyViewMode() {
@@ -1404,9 +1436,12 @@ import "../styles/components.css";
             const langPtBtn = document.getElementById("lang-pt");
             const viewToggleBtn = document.getElementById("view-toggle");
             const graphHintBtn = document.getElementById("graph-mode-hint");
+            const legendToggleBtn = document.getElementById("legend-toggle");
             langEnBtn?.addEventListener("click", () => setLanguage("en"));
             langPtBtn?.addEventListener("click", () => setLanguage("pt"));
             viewToggleBtn?.addEventListener("click", toggleViewMode);
+            legendToggleBtn?.addEventListener("click", toggleLegend);
+            applyLegendState();
             graphHintBtn?.addEventListener("click", () => {
                 if (currentViewMode !== "graph") {
                     currentViewMode = "graph";
