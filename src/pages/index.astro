@@ -115,6 +115,9 @@ import "../styles/components.css";
             >
             <button id="graph-mode-hint" class="graph-mode-hint" type="button"
             ></button>
+        </div>
+
+        <div id="search-dock">
             <button
                 id="search-trigger"
                 aria-label="Search (Cmd+K)"
@@ -142,6 +145,13 @@ import "../styles/components.css";
                 </svg>
                 <span id="search-trigger-label">Search (Cmd+K)</span>
             </button>
+            <nav id="simple-nav-tab" aria-label="Simple mode sections">
+                <button type="button" class="simple-nav-tab-link" data-simple-target="simple-about" id="simple-tab-about">About</button>
+                <button type="button" class="simple-nav-tab-link" data-simple-target="simple-contact" id="simple-tab-contact">Contact</button>
+                <button type="button" class="simple-nav-tab-link" data-simple-target="simple-projects" id="simple-tab-projects">Projects</button>
+                <button type="button" class="simple-nav-tab-link" data-simple-target="simple-experience" id="simple-tab-experience">Experience</button>
+                <button type="button" class="simple-nav-tab-link" data-simple-target="simple-tech" id="simple-tab-tech">Technologies</button>
+            </nav>
         </div>
     </body>
 </html>
@@ -464,23 +474,6 @@ import "../styles/components.css";
             t("simpleSubtitle") +
             "</p>" +
             "</header>" +
-            '<nav class="simple-nav">' +
-            '<a href="#simple-about">' +
-            t("simpleNavAbout") +
-            "</a>" +
-            '<a href="#simple-contact">' +
-            t("simpleNavContact") +
-            "</a>" +
-            '<a href="#simple-projects">' +
-            t("simpleNavProjects") +
-            "</a>" +
-            '<a href="#simple-experience">' +
-            t("simpleNavExperience") +
-            "</a>" +
-            '<a href="#simple-tech">' +
-            t("simpleNavTech") +
-            "</a>" +
-            "</nav>" +
             '<section id="simple-about" class="simple-section">' +
             "<h3>" +
             t("simpleNavAbout") +
@@ -646,6 +639,21 @@ import "../styles/components.css";
             if (searchLabel) searchLabel.textContent = ui.searchTitle;
         }
 
+        const simpleTabAbout = document.getElementById("simple-tab-about");
+        const simpleTabContact = document.getElementById("simple-tab-contact");
+        const simpleTabProjects = document.getElementById("simple-tab-projects");
+        const simpleTabExperience = document.getElementById(
+            "simple-tab-experience",
+        );
+        const simpleTabTech = document.getElementById("simple-tab-tech");
+        if (simpleTabAbout) simpleTabAbout.textContent = ui.simpleNavAbout;
+        if (simpleTabContact) simpleTabContact.textContent = ui.simpleNavContact;
+        if (simpleTabProjects)
+            simpleTabProjects.textContent = ui.simpleNavProjects;
+        if (simpleTabExperience)
+            simpleTabExperience.textContent = ui.simpleNavExperience;
+        if (simpleTabTech) simpleTabTech.textContent = ui.simpleNavTech;
+
         const graphHintBtn = document.getElementById("graph-mode-hint");
         if (graphHintBtn) {
             graphHintBtn.textContent = ui.tryGraph;
@@ -701,6 +709,20 @@ import "../styles/components.css";
         applyLegendState();
     }
 
+    function scrollSimpleSection(sectionId) {
+        if (currentViewMode !== "simple") return;
+        const root = document.getElementById("simple-mode-root");
+        const target = document.getElementById(sectionId);
+        if (!root || !target) return;
+
+        const top =
+            target.getBoundingClientRect().top -
+            root.getBoundingClientRect().top +
+            root.scrollTop -
+            8;
+        root.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }
+
     function applyViewMode() {
         const isSimple = currentViewMode === "simple";
         document.body.classList.toggle("simple-mode", isSimple);
@@ -728,6 +750,7 @@ import "../styles/components.css";
             );
             graphHintBtn.tabIndex = showHint ? 0 : -1;
         }
+
     }
 
     function toggleViewMode() {
@@ -1132,7 +1155,7 @@ import "../styles/components.css";
 
                     if (event.ctrlKey) {
                         const direction = event.deltaY < 0 ? 1 : -1;
-                        const factor = direction > 0 ? 1.08 : 0.92;
+                        const factor = direction > 0 ? 1.03 : 0.97;
                         const point = d3.pointer(event, svgNode);
                         svg.call(zoom.scaleBy, factor, point);
                         return;
@@ -1441,6 +1464,14 @@ import "../styles/components.css";
             langPtBtn?.addEventListener("click", () => setLanguage("pt"));
             viewToggleBtn?.addEventListener("click", toggleViewMode);
             legendToggleBtn?.addEventListener("click", toggleLegend);
+            document.querySelectorAll("[data-simple-target]").forEach((el) => {
+                el.addEventListener("click", (event) => {
+                    event.preventDefault();
+                    const target = el.getAttribute("data-simple-target");
+                    if (!target) return;
+                    scrollSimpleSection(target);
+                });
+            });
             applyLegendState();
             graphHintBtn?.addEventListener("click", () => {
                 if (currentViewMode !== "graph") {
