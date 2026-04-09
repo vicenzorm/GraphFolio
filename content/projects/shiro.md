@@ -32,7 +32,7 @@ Shiro recreates the feel of classic portable arcade games with modern iOS perfor
 - Trade-offs: Chose native Apple stack over cross-platform engines for tighter integration
 - Delivery model: Modular architecture across states, nodes, and UI layers
 
-## Tech useds
+## Tech used
 - [[SpriteKit]]
 - [[GameplayKit]]
 - [[SwiftUI]]
@@ -40,7 +40,7 @@ Shiro recreates the feel of classic portable arcade games with modern iOS perfor
 - [[CoreHaptics]]
 
 ## Links
-- Repository: https://github.com/vicenzorm/SaguBoy#
+- Repository: https://github.com/vicenzorm/SaguBoy
 - Team: https://www.linkedin.com/in/bernardofens/
 - Team: https://www.linkedin.com/in/pedro-kosciuk-lima-a29855207/
 - Team: https://www.linkedin.com/in/jeanpierrerodrigues/

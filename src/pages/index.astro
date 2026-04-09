@@ -1086,8 +1086,29 @@ import "../styles/components.css";
         const zoom = d3
             .zoom()
             .scaleExtent([0.3, 3])
+            .filter((event) => event.type !== "wheel" && !event.button)
             .on("zoom", (ev) => g.attr("transform", ev.transform));
         svg.call(zoom);
+
+        const svgNode = svg.node();
+        if (svgNode) {
+            svgNode.addEventListener(
+                "wheel",
+                (event) => {
+                    if (currentViewMode === "simple") return;
+                    event.preventDefault();
+                    const transform = d3.zoomTransform(svgNode);
+                    const next = d3.zoomIdentity
+                        .translate(
+                            transform.x - event.deltaX,
+                            transform.y - event.deltaY,
+                        )
+                        .scale(transform.k);
+                    svg.call(zoom.transform, next);
+                },
+                { passive: false },
+            );
+        }
 
         const edgesSel = g
             .append("g")

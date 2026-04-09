@@ -39,7 +39,7 @@ Shiro recria a sensação de jogos arcade portáteis clássicos com performance 
 - [[CoreHaptics]]
 
 ## Links
-- Repository: https://github.com/vicenzorm/SaguBoy#
+- Repository: https://github.com/vicenzorm/SaguBoy
 - Team: https://www.linkedin.com/in/bernardofens/
 - Team: https://www.linkedin.com/in/pedro-kosciuk-lima-a29855207/
 - Team: https://www.linkedin.com/in/jeanpierrerodrigues/
