@@ -96,14 +96,6 @@ import "../styles/components.css";
 
         <div id="hud-right">
             <button
-                id="view-toggle"
-                class="view-btn"
-                aria-label="Switch to Simple Mode"
-                title="Simple Mode">Simple</button
-            >
-            <button id="graph-mode-hint" class="graph-mode-hint" type="button"
-            ></button>
-            <button
                 id="lang-en"
                 class="lang-btn"
                 aria-label="Switch to English"
@@ -115,6 +107,14 @@ import "../styles/components.css";
                 aria-label="Mudar para português"
                 title="Português">🇧🇷</button
             >
+            <button
+                id="view-toggle"
+                class="view-btn"
+                aria-label="Switch to Simple Mode"
+                title="Simple Mode">Simple</button
+            >
+            <button id="graph-mode-hint" class="graph-mode-hint" type="button"
+            ></button>
             <button
                 id="search-trigger"
                 aria-label="Search (Cmd+K)"
@@ -715,7 +715,7 @@ import "../styles/components.css";
                 "aria-label",
                 isSimple ? "Switch to Graph Mode" : "Switch to Simple Mode",
             );
-            toggle.classList.toggle("active", isSimple);
+
         }
 
         const graphHintBtn = document.getElementById("graph-mode-hint");

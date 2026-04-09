@@ -403,8 +403,19 @@
   right: 20px;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
+  max-width: 160px;
   z-index: 55;
+}
+
+#view-toggle {
+  width: 80px;
+  flex-basis: auto;
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .view-btn,
@@ -449,9 +460,12 @@
 
 .lang-btn {
   font-size: 14px;
+  width: 36px;
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
 }
 
-.view-btn.active,
 .lang-btn.active {
   border-color: var(--accent);
   color: var(--text);
