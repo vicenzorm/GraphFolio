@@ -1097,6 +1097,15 @@ import "../styles/components.css";
                 (event) => {
                     if (currentViewMode === "simple") return;
                     event.preventDefault();
+
+                    if (event.ctrlKey) {
+                        const direction = event.deltaY < 0 ? 1 : -1;
+                        const factor = direction > 0 ? 1.08 : 0.92;
+                        const point = d3.pointer(event, svgNode);
+                        svg.call(zoom.scaleBy, factor, point);
+                        return;
+                    }
+
                     const transform = d3.zoomTransform(svgNode);
                     const next = d3.zoomIdentity
                         .translate(
