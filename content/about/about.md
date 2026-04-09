@@ -3,7 +3,7 @@ title: About
 type: about
 description: Start here — who I am and what I do.
 ---
-# Hi, I'm Vicenzo Masera
+# Hi, I'm Vicenzo Másera
 
 Software Engineering student and iOS developer focused on native Apple experiences.
 
